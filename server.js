@@ -6,7 +6,7 @@ import { TYPES, ONGOING_RX, RESOLVED_RX, SEVERE_RX, MINOR_RX, CLASSIFIER_VERSION
 import { loadIncome, affordFor, incomeStatus } from './lib/income.js';
 import { STATES } from './lib/geo.js';
 import { rankMarkets, scoreMarket, dayKey, actionFor } from './lib/score.js';
-import { liveIngest, backfill, backfillStatus, probe, reprocessIfChanged } from './lib/ingest.js';
+import { liveIngest, backfill, backfillStatus, probe, reprocessIfChanged, syncTrust } from './lib/ingest.js';
 
 const app = express();
 const __dir = path.dirname(fileURLToPath(import.meta.url));
@@ -32,7 +32,7 @@ async function loadGroups(level, typeFilter, days = 75) {
       count(DISTINCT COALESCE(domain,url))::int domains, count(*)::int n,
       count(*) FILTER (WHERE title ~* $2)::int severe, count(*) FILTER (WHERE title ~* $3)::int minor,
       count(*) FILTER (WHERE title ~* $4)::int ongoing, count(*) FILTER (WHERE title ~* $5)::int resolved
-    FROM articles WHERE NOT dismissed ${level === 'city' ? 'AND city IS NOT NULL' : ''} AND seen_at > now() - ($1 || ' days')::interval GROUP BY 1,2,3`;
+    FROM articles WHERE NOT dismissed AND trusted ${level === 'city' ? 'AND city IS NOT NULL' : ''} AND seen_at > now() - ($1 || ' days')::interval GROUP BY 1,2,3`;
   const { rows } = await pool.query(sql, [String(days), SEVERE_RX, MINOR_RX, ONGOING_RX, RESOLVED_RX]);
   const groups = new Map();
   for (const r of rows) {
@@ -67,7 +67,7 @@ app.get('/api/markets', async (req, res) => {
 });
 
 app.get('/api/events', async (req, res) => {
-  const where = ['NOT dismissed', `seen_at > now() - ($1 || ' days')::interval`]; const args = [String(Math.min(+req.query.days || 14, 90))];
+  const where = ['NOT dismissed', 'trusted', `seen_at > now() - ($1 || ' days')::interval`]; const args = [String(Math.min(+req.query.days || 14, 90))];
   if (req.query.market) {
     const m = String(req.query.market);
     if (m.includes(', ')) { const [c, s] = m.split(', '); args.push(c, s); where.push(`city = $${args.length - 1} AND state = $${args.length}`); }
@@ -100,16 +100,16 @@ app.get('/api/history', async (req, res) => {
 });
 
 app.get('/api/export.csv', async (_q, res) => {
-  const { rows } = await pool.query(`SELECT to_char(seen_at,'YYYY-MM-DD HH24:MI') seen, type, state, city, domain, title, url FROM articles WHERE NOT dismissed ORDER BY seen_at DESC`);
+  const { rows } = await pool.query(`SELECT to_char(seen_at,'YYYY-MM-DD HH24:MI') seen, type, state, city, domain, trusted, title, url FROM articles WHERE NOT dismissed ORDER BY seen_at DESC`);
   const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  res.type('text/csv').send(['seen,type,state,city,domain,title,url', ...rows.map(r => [r.seen, r.type, r.state, r.city, r.domain, r.title, r.url].map(esc).join(','))].join('\n'));
+  res.type('text/csv').send(['seen,type,state,city,domain,counts,title,url', ...rows.map(r => [r.seen, r.type, r.state, r.city, r.domain, r.trusted ? 'yes' : 'no', r.title, r.url].map(esc).join(','))].join('\n'));
 });
 
 app.post('/api/ingest/run', async (_q, res) => { liveIngest(); res.json({ started: true }); });
 
 const port = process.env.PORT || 3000;
 await migrate();
-if (process.env.DISABLE_JOBS !== '1') await reprocessIfChanged(CLASSIFIER_VERSION);
+if (process.env.DISABLE_JOBS !== '1') { await reprocessIfChanged(CLASSIFIER_VERSION); await syncTrust(); }
 app.listen(port, () => console.log('listening on', port));
 
 if (process.env.DISABLE_JOBS !== '1') {

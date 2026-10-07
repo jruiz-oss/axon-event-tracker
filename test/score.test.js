@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { geoTag } from '../lib/geo.js';
 import { scoreMarket, actionFor, windowFor } from '../lib/score.js';
 import { affordFor } from '../lib/income.js';
+import { isTrusted } from '../lib/outlets.js';
 import { classify } from '../lib/types.js';
 import { parseGkg } from '../lib/ingest.js';
 
@@ -46,11 +47,11 @@ assert.equal(windowFor([{ d: day(0), type: 'unrest', domains: 10, n: 10 }]).last
 const ev = (sev, minor) => [{ d: day(0), type: 'home_invasion', domains: 6, n: 6, severe: sev, minor }];
 assert.ok(scoreMarket(ev(4, 0)).score > scoreMarket(ev(0, 0)).score && scoreMarket(ev(0, 0)).score > scoreMarket(ev(0, 5)).score, 'severity orders scores');
 
-// triggers are for major stories: a handful of outlets is not enough, 8+ is; severe incidents need 6+
+// triggers are for major stories: a handful of trusted outlets is not enough, 6+ is; severe incidents need 4+
 assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 1, n: 1 }]).lastTrigger, null, 'single outlet is not a trigger');
 assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 5, n: 5 }]).lastTrigger, null, 'small story is not a trigger');
 assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 9, n: 9 }]).lastTrigger, 0);
-assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 6, n: 6, severe: 3 }]).lastTrigger, 0, 'severe needs fewer outlets');
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 4, n: 4, severe: 2 }]).lastTrigger, 0, 'severe needs fewer outlets');
 
 // a high-crime market with steady coverage stays near 0 heat and never triggers on its normal
 const busy = []; for (let n = 0; n < 74; n++) busy.push({ d: day(n), type: 'violent_crime_spike', domains: 10, n: 10 });
@@ -114,4 +115,9 @@ assert.equal(got.length, 2);
 assert.deepEqual([got[0].type, got[0].state, got[0].city, got[0].domain], ['mass_casualty', 'TX', 'Houston', 'wral.com']);
 assert.deepEqual([got[1].state, got[1].city], ['OK', 'Tulsa']);
 assert.ok(got[1].title.includes('"active shooter"'), 'xml entities decoded');
+// outlets: newsrooms count, aggregators and random sites don't, learned local outlets do
+assert.ok(isTrusted('khou.com') && isTrusted('www.nytimes.com') && isTrusted('wbur.org') && isTrusted('fox26houston.com'));
+assert.ok(!isTrusted('yahoo.com') && !isTrusted('patch.com') && !isTrusted('randomcrimeblog.net'));
+assert.ok(isTrusted('ithacajournal.com', new Set(['ithacajournal.com'])), 'learned local outlet counts');
+assert.ok(!isTrusted('patch.com', new Set(['patch.com'])), 'blocked stays blocked');
 console.log('all tests passed');
