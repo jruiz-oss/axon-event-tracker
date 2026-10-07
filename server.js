@@ -5,11 +5,11 @@ import { pool, migrate } from './lib/db.js';
 import { TYPES } from './lib/types.js';
 import { STATES } from './lib/geo.js';
 import { rankMarkets, scoreMarket, dayKey, actionFor } from './lib/score.js';
-import { liveIngest, backfill, backfillStatus } from './lib/ingest.js';
+import { liveIngest, backfill, backfillStatus, probe } from './lib/ingest.js';
 
 const app = express();
 const __dir = path.dirname(fileURLToPath(import.meta.url));
-const BACKFILL_DAYS = 90;
+const BACKFILL_DAYS = +process.env.BACKFILL_DAYS || 90;
 
 // Optional shared password (set DASH_PASSWORD on Railway). Username is ignored.
 app.use((req, res, next) => {
@@ -101,16 +101,17 @@ app.get('/api/export.csv', async (_q, res) => {
   res.type('text/csv').send(['seen,type,state,city,domain,title,url', ...rows.map(r => [r.seen, r.type, r.state, r.city, r.domain, r.title, r.url].map(esc).join(','))].join('\n'));
 });
 
-app.post('/api/ingest/run', async (_q, res) => { liveIngest(24); res.json({ started: true }); });
+app.post('/api/ingest/run', async (_q, res) => { liveIngest(); res.json({ started: true }); });
 
 const port = process.env.PORT || 3000;
 await migrate();
 app.listen(port, () => console.log('listening on', port));
 
 if (process.env.DISABLE_JOBS !== '1') {
-// Schedules: live pull every 2h (6h window overlaps on purpose), backfill resumes until done.
-setTimeout(() => liveIngest(24), 15e3);
-setInterval(() => liveIngest(6), 2 * 3600e3);
-setTimeout(() => backfill(BACKFILL_DAYS), 45e3);
-setInterval(() => backfill(BACKFILL_DAYS), 6 * 3600e3);
+  // Hourly catch-up (36h lookback, so yesterday is always covered), plus a resumable history backfill.
+  setTimeout(probe, 5e3);
+  setTimeout(() => liveIngest(), 15e3);
+  setInterval(() => liveIngest(), 3600e3);
+  setTimeout(() => backfill(BACKFILL_DAYS), 60e3);
+  setInterval(() => backfill(BACKFILL_DAYS), 6 * 3600e3);
 }

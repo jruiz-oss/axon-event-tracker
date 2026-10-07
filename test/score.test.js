@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { geoTag } from '../lib/geo.js';
 import { scoreMarket, actionFor } from '../lib/score.js';
-import { gdeltQuery } from '../lib/types.js';
+import { classify } from '../lib/types.js';
+import { parseGkg } from '../lib/ingest.js';
 
 const cases = [
   ['Chicago police respond to mass shooting that left 6 hurt', 'IL', 'Chicago'],
@@ -33,5 +34,25 @@ assert.equal(actionFor(80).level, 'Hot');
 assert.ok(!/%|bid/i.test(actionFor(80, ['carjacking'], ['Houston']).action), 'no bid language');
 assert.match(actionFor(80, ['carjacking','home_invasion'], ['Houston','Dallas']).action, /Houston and Dallas/);
 assert.equal(actionFor(5).level, 'Quiet');
-console.log(gdeltQuery('disaster_looting'));
+
+// headline classifier
+assert.deepEqual(classify('Riot Games announces new champion'), []);
+assert.deepEqual(classify('Looters hit stores after Atlanta blackout'), ['disaster_looting']);
+assert.deepEqual(classify('Looters caught on camera at the mall'), []); // looting needs a disaster word
+assert.deepEqual(classify('ICE agents arrest dozens in Charlotte'), ['ice_enforcement']);
+
+// GKG 2.1 line: 27 tab separated columns, title lives in Extras, geo from title first then location column
+const row = (title, loc = '') => { const f = Array(27).fill(''); f[1] = '20261006143000'; f[3] = 'wral.com'; f[4] = 'https://wral.com/a1'; f[10] = loc; f[26] = `<PAGE_TITLE>${title}</PAGE_TITLE>`; return f.join('\t'); };
+const txt = [
+  row('Mass shooting leaves 4 dead in Houston, police say'),
+  row('Police: &quot;active shooter&quot; reported near mall', '3#Tulsa, Oklahoma, United States#US#USOK#USOK143#36.1#-95.9#1#10'),
+  row('Active shooter drill planned', '1#United States#US#US##39#-98#US#5;3#Tulsa, Oklahoma, United States#US#USOK#USOK143#36.1#-95.9#1#10;3#Dallas, Texas, United States#US#USTX#USTX113#32#-96#2#40'),
+  row('Local bakery wins award in Houston'),
+  'broken\tline',
+].join('\n');
+const got = parseGkg(txt);
+assert.equal(got.length, 2);
+assert.deepEqual([got[0].type, got[0].state, got[0].city, got[0].domain], ['mass_casualty', 'TX', 'Houston', 'wral.com']);
+assert.deepEqual([got[1].state, got[1].city], ['OK', 'Tulsa']);
+assert.ok(got[1].title.includes('"active shooter"'), 'xml entities decoded');
 console.log('all tests passed');
