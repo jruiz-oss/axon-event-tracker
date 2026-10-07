@@ -22,6 +22,12 @@ for (const [t, st, city] of cases) {
   assert.equal(g.city, city, t);
 }
 assert.equal(geoTag('Georgia and Russia sign deal'), null);
+// campuses and "Town, ST" places that aren't in the city list
+assert.deepEqual(geoTag("Cornell president calls gang rape allegations 'deeply disturbing'"), { state: 'NY', city: 'Ithaca' });
+assert.deepEqual(geoTag('Columbia University students stage walkout'), { state: 'NY', city: 'New York City' });
+assert.deepEqual(geoTag('Woman attacked on trail in Ithaca, N.Y.'), { state: 'NY', city: 'Ithaca' });
+assert.deepEqual(geoTag('Shooting reported in Bozeman, Montana'), { state: 'MT', city: 'Bozeman' });
+assert.deepEqual(geoTag('Shooting on Monday, Texas police say'), { state: 'TX', city: null });
 assert.equal(geoTag('Nationwide protest planned'), null);
 
 // scoring: a fresh spike beats a flat baseline (spikes matter)
@@ -81,12 +87,18 @@ assert.equal(affordFor('MA', inc).tier, 'High');
 assert.equal(affordFor('Houston, TX', inc).income, 80000);
 assert.equal(affordFor('Brooklyn, NY', inc).income, 97000, 'borough maps to NY metro');
 assert.equal(affordFor('El Paso, TX', inc).source, 'TX statewide (no metro match)');
+assert.equal(affordFor('Houston, TX', inc, { campus: true }).income, 76000, 'campus stories use the state median');
 
 // headline classifier
 assert.deepEqual(classify('Riot Games announces new champion'), []);
 assert.deepEqual(classify('Looters hit stores after Atlanta blackout'), ['disaster_looting']);
 assert.deepEqual(classify('Looters caught on camera at the mall'), []); // looting needs a disaster word
 assert.deepEqual(classify('ICE agents arrest dozens in Charlotte'), ['ice_enforcement']);
+// sexual assault coverage (the Cornell case) and campus incidents
+assert.deepEqual(classify("Cornell president calls gang rape allegations 'deeply disturbing'"), ['stalking_abduction', 'campus']);
+assert.deepEqual(classify('Pressure Mounts on Cornell to Explain Its Handling of Sexual Assault Allegations'), ['stalking_abduction', 'campus']);
+assert.ok(classify('Cornell students hold sit-in over alleged 2024 fraternity assault').includes('campus'));
+assert.deepEqual(classify('Grape harvest begins early'), []);
 
 // GKG 2.1 line: 27 tab separated columns, title lives in Extras, geo from title first then location column
 const row = (title, loc = '') => { const f = Array(27).fill(''); f[1] = '20261006143000'; f[3] = 'wral.com'; f[4] = 'https://wral.com/a1'; f[10] = loc; f[26] = `<PAGE_TITLE>${title}</PAGE_TITLE>`; return f.join('\t'); };

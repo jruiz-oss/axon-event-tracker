@@ -2,11 +2,11 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool, migrate } from './lib/db.js';
-import { TYPES, ONGOING_RX, RESOLVED_RX, SEVERE_RX, MINOR_RX } from './lib/types.js';
+import { TYPES, ONGOING_RX, RESOLVED_RX, SEVERE_RX, MINOR_RX, CLASSIFIER_VERSION } from './lib/types.js';
 import { loadIncome, affordFor, incomeStatus } from './lib/income.js';
 import { STATES } from './lib/geo.js';
 import { rankMarkets, scoreMarket, dayKey, actionFor } from './lib/score.js';
-import { liveIngest, backfill, backfillStatus, probe } from './lib/ingest.js';
+import { liveIngest, backfill, backfillStatus, probe, reprocessIfChanged } from './lib/ingest.js';
 
 const app = express();
 const __dir = path.dirname(fileURLToPath(import.meta.url));
@@ -109,6 +109,7 @@ app.post('/api/ingest/run', async (_q, res) => { liveIngest(); res.json({ starte
 
 const port = process.env.PORT || 3000;
 await migrate();
+if (process.env.DISABLE_JOBS !== '1') await reprocessIfChanged(CLASSIFIER_VERSION);
 app.listen(port, () => console.log('listening on', port));
 
 if (process.env.DISABLE_JOBS !== '1') {
