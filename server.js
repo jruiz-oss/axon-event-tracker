@@ -5,7 +5,7 @@ import { pool, migrate } from './lib/db.js';
 import { TYPES, ONGOING_RX, RESOLVED_RX, SEVERE_RX, MINOR_RX, CLASSIFIER_VERSION } from './lib/types.js';
 import { loadIncome, affordFor, incomeStatus } from './lib/income.js';
 import { STATES } from './lib/geo.js';
-import { rankMarkets, scoreMarket, dayKey, actionFor } from './lib/score.js';
+import { rankMarkets, scoreMarket, dayKey, actionFor, CALL_ORDER } from './lib/score.js';
 import { liveIngest, backfill, backfillStatus, probe, reprocessIfChanged, syncTrust } from './lib/ingest.js';
 
 const app = express();
@@ -53,16 +53,31 @@ app.get('/api/markets', async (req, res) => {
     const level = req.query.level === 'city' ? 'city' : 'state';
     const types = parseTypes(req.query.types);
     await loadIncome();
-    const ranked = rankMarkets(await loadGroups(level, types), new Date(), affordFor).slice(0, level === 'city' ? 50 : 60);
+    let ranked = rankMarkets(await loadGroups(level, types), new Date(), affordFor);
     if (level === 'state') {
-      // Attach the hottest affordable cities inside each state and rebuild the recommendation with them
+      // A state is as hot as its hottest city: Cornell in Ithaca shouldn't be averaged away by all of New York's
+      // normal coverage. Then attach the hottest affordable cities and rebuild the recommendation.
       const cityRanked = rankMarkets(await loadGroups('city', types), new Date(), affordFor).sort((a, b) => b.score - a.score);
+      const byState = new Map(ranked.map(m => [m.key, m]));
+      for (const c of cityRanked) {
+        const st = c.key.split(', ')[1];
+        let m = byState.get(st);
+        if (!m) {
+          m = { key: st, score: 0, prev: 0, delta: 0, topTypes: [], byType: {}, win: { lastTrigger: null, daysLeft: 0, incidents: 0, note: '' }, afford: affordFor(st) };
+          byState.set(st, m); ranked.push(m);
+        }
+        if (c.score > m.score) {
+          Object.assign(m, { score: c.score, prev: c.prev, delta: c.delta, topTypes: c.topTypes, byType: c.byType, ledBy: c.key.split(', ')[0] });
+          if (c.win.lastTrigger != null && (m.win.lastTrigger == null || c.win.lastTrigger < m.win.lastTrigger)) m.win = c.win;
+        }
+      }
       for (const m of ranked) {
         m.cities = cityRanked.filter(c => c.key.endsWith(', ' + m.key) && c.score >= 20 && c.afford?.tier !== 'Low').slice(0, 4).map(c => c.key.split(', ')[0]);
         Object.assign(m, actionFor(m.score, m.topTypes, m.cities, m.win, m.afford));
       }
+      ranked = ranked.filter(m => m.score > 0).sort((a, b) => (CALL_ORDER[a.call] - CALL_ORDER[b.call]) || (b.score - a.score));
     }
-    res.json(ranked);
+    res.json(ranked.slice(0, level === 'city' ? 50 : 60));
   } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
 });
 
@@ -88,12 +103,15 @@ app.get('/api/history', async (req, res) => {
   try {
     const level = req.query.level === 'city' ? 'city' : 'state';
     const days = Math.min(+req.query.days || 90, 180);
-    const groups = await loadGroups(level, parseTypes(req.query.types), days + 75);
-    const rows = groups.get(String(req.query.market)) || [];
+    const types = parseTypes(req.query.types), market = String(req.query.market);
+    const rows = (await loadGroups(level, types, days + 75)).get(market) || [];
+    // states use the same rule as /api/markets: the hotter of the state and its hottest city, day by day
+    const cityRows = level === 'state'
+      ? [...(await loadGroups('city', types, days + 75)).entries()].filter(([k]) => k.endsWith(', ' + market)).map(([, r]) => r) : [];
     const series = [];
     for (let a = days - 1; a >= 0; a--) {
       const asOf = new Date(Date.now() - a * 86400e3);
-      series.push({ d: dayKey(asOf), score: scoreMarket(rows, asOf).score });
+      series.push({ d: dayKey(asOf), score: Math.max(scoreMarket(rows, asOf).score, ...cityRows.map(r => scoreMarket(r, asOf).score)) });
     }
     res.json(series);
   } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
