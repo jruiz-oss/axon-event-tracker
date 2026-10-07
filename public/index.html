@@ -15,23 +15,23 @@
   --accent:#b23c0b;--accent-soft:#fdf1e9;
   --q:#efeee9;--w:#eda36b;--h:#dd6a2a;--hot:#b23c0b;
   --up:#b23c0b;--down:#2f7d4a;--good:#2f7d4a;--good-soft:#e8f3ec;
-  --r:12px;--shadow:0 1px 2px rgba(18,18,18,.04),0 1px 1px rgba(18,18,18,.03);
+  --r:12px;--panel:#f7f6f2;--dur:.45s;--ease:cubic-bezier(.2,.8,.2,1);--shadow:0 1px 2px rgba(18,18,18,.04),0 1px 1px rgba(18,18,18,.03);
 }
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
-body{margin:0;color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
+body{margin:0;color:var(--ink);font:13px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
 .num{font-variant-numeric:tabular-nums}
 a{color:inherit}
 button{font:inherit;color:inherit}
 
 /* Header */
 header{background:var(--card);border-bottom:1px solid var(--line)}
-.hwrap{max-width:1480px;margin:0 auto;padding:14px 24px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.hwrap{max-width:1480px;margin:0 auto;padding:10px 20px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .brand{display:flex;gap:12px;align-items:center;min-width:0}
-.mark{width:34px;height:34px;border-radius:9px;background:var(--ink);display:grid;place-items:center;flex:none}
+.mark{width:28px;height:28px;border-radius:9px;background:var(--ink);display:grid;place-items:center;flex:none}
 .mark svg{width:18px;height:18px}
-h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
-.sub{color:var(--mute);font-size:12.5px}
+h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
+.sub{color:var(--mute);font-size:12px}
 .status{display:flex;gap:18px;align-items:center;font-size:12.5px;color:var(--ink2);flex-wrap:wrap}
 .live{display:flex;align-items:center;gap:8px}
 .dot{width:8px;height:8px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 3px rgba(47,158,87,.15)}
@@ -41,16 +41,17 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .bar i{display:block;height:100%;background:var(--ink);border-radius:99px}
 
 /* Toolbar + filters */
-.wrap{max-width:1480px;margin:0 auto;padding:18px 24px 40px}
-.toolbar{display:flex;gap:14px 20px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+.wrap{max-width:1480px;margin:0 auto;padding:12px 20px 32px}
+.toolbar{display:flex;gap:10px 16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
 .seg{display:inline-flex;background:var(--line2);border-radius:9px;padding:3px}
-.seg button{border:0;background:none;padding:5px 14px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink2)}
+.seg button{border:0;background:none;padding:4px 12px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink2)}
 .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
-.filters{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px 14px;margin-bottom:16px;display:grid;gap:8px}
-.frow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.flabel{font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;width:92px;flex:none}
-.fhead{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mute)}
-.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:4px 11px;font-size:12.5px;cursor:pointer;color:var(--ink2);transition:background .12s,border-color .12s}
+.filters{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:7px 12px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:5px 6px}
+.frow{display:contents}
+.flabel{font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;flex:none;margin:0 2px 0 10px}
+.fhead{display:contents;font-size:12px;color:var(--mute)}
+.fhead>span{font-size:12px;color:var(--mute)}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:2px 10px;font-size:12px;cursor:pointer;color:var(--ink2);transition:background .12s,border-color .12s}
 .chip:hover{border-color:#cfcec7}
 .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .linkbtn{border:0;background:none;color:var(--mute);font-size:12.5px;cursor:pointer;padding:4px 6px;text-decoration:underline;text-underline-offset:2px}
@@ -59,34 +60,34 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .btn svg{width:14px;height:14px}
 
 /* KPIs */
-.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow);min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:9px 14px;box-shadow:var(--shadow);min-width:0}
 .kpi .k{font-size:12px;color:var(--mute);font-weight:500;display:flex;align-items:center;gap:7px}
 .kpi .k i{width:9px;height:9px;border-radius:3px;display:inline-block}
-.kpi .v{font-size:26px;font-weight:650;letter-spacing:-.02em;margin-top:2px;line-height:1.2}
-.kpi .v.sm{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:6px}
-.kpi .d{font-size:12px;color:var(--ink2);margin-top:2px}
+.kpi .v{font-size:21px;font-weight:650;letter-spacing:-.02em;margin-top:2px;line-height:1.2}
+.kpi .v.sm{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:6px}
+.kpi .d{font-size:11.5px;color:var(--ink2);margin-top:2px}
 .kpi.hl{border-color:#cfe3d6}
 
 /* Cards */
-.stack{display:grid;gap:16px}
+.stack{display:grid;gap:10px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);min-width:0}
-.ch{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px 0;flex-wrap:wrap}
+.ch{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 16px 0;flex-wrap:wrap}
 .ch h2{font-size:13.5px;font-weight:600;margin:0}
 .ch .sub{font-size:12px}
-.cb{padding:12px 18px 18px}
+.cb{padding:8px 16px 14px}
 
 /* Map */
-#map{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:6px}
-.tile{aspect-ratio:1.45;border-radius:7px;background:var(--q);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;border:0;padding:0;min-width:0;color:var(--ink2);transition:transform .1s,box-shadow .1s;outline:none;position:relative}
-.tile small{font-weight:500;font-size:11px;opacity:.85}
+#map{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:4px}
+.tile{aspect-ratio:2.4;border-radius:7px;background:var(--q);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:600;cursor:pointer;border:0;padding:0;min-width:0;color:var(--ink2);line-height:1.25;transition:transform .1s,box-shadow .1s;outline:none;position:relative}
+.tile small{font-weight:500;font-size:10.5px;opacity:.85}
 .tile:hover,.tile:focus-visible{transform:translateY(-1px);box-shadow:0 0 0 2px var(--card),0 0 0 3.5px #bdbcb5}
 .tile.sel{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
 .tile.weak{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
 .tile.weak.t-Hot{text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .tile .go{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff}
 .t-Watch,.t-Warm{color:#1d140d}.t-Hot{color:#fff}
-.legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:14px;font-size:12.5px;color:var(--ink2)}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin-top:10px;font-size:12px;color:var(--ink2)}
 .legend>span{display:inline-flex;align-items:center;gap:7px}
 .legend i{width:12px;height:12px;border-radius:4px;display:inline-block;flex:none}
 .legend i.go{width:9px;height:9px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line)}
@@ -113,11 +114,11 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--mute)}
 
 /* Ranked table */
-.tablewrap{overflow-x:auto;margin:0 -18px}
+.tablewrap{overflow-x:auto;margin:0 -16px}
 .rank{width:100%;border-collapse:collapse;min-width:900px}
 .rank th{text-align:left;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-.rank th:first-child,.rank td:first-child{padding-left:18px}
-.rank td{padding:11px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.rank th:first-child,.rank td:first-child{padding-left:16px}
+.rank td{padding:7px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
 .rank tr:last-child td{border-bottom:0}
 .rank tr.row{cursor:pointer}
 .rank tr.row:hover td{background:var(--hover)}
@@ -126,8 +127,8 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .rank tr.dim .mk,.rank tr.dim .rec2{color:var(--mute)}
 .rk{color:var(--mute);font-size:12px;width:34px}
 .mk{font-weight:600;white-space:nowrap}
-.drivers{color:var(--ink2);font-size:12.5px;max-width:260px}
-.rec2{font-size:12.5px;color:var(--ink2);max-width:420px}
+.drivers{color:var(--ink2);font-size:12px;max-width:260px}
+.rec2{font-size:12px;color:var(--ink2);max-width:420px}
 .sc{display:flex;align-items:center;gap:8px;width:130px}
 .sc .sbar{flex:1;height:6px;background:var(--line2);border-radius:99px;overflow:hidden}
 .sc .sbar i{display:block;height:100%;border-radius:99px}
@@ -137,33 +138,42 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .loading{opacity:.55;transition:opacity .15s}
 
 /* Inline detail panel (opens inside the map or the table, no popup) */
-.inl{position:relative;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(18,18,18,.08);padding:18px 20px 20px;margin:4px 0 6px;animation:inl .18s ease-out;cursor:default;text-align:left}
-@keyframes inl{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
-.inl::before{content:"";position:absolute;top:-8px;left:var(--cx,50%);width:14px;height:14px;background:var(--card);border-left:1px solid var(--line);border-top:1px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+.inl{background:var(--panel);border-radius:12px;padding:18px 20px 20px;margin:2px 0 6px;animation:inl .2s ease-out;cursor:default;text-align:left}
+@keyframes inl{from{opacity:0}to{opacity:1}}
+/* State details grow out of the clicked square and sit flat in the map's place */
+#mapArea{position:relative;transition:height var(--dur) var(--ease)}
+#map{transition:opacity .22s}
+#mapArea.open #map{opacity:0;pointer-events:none}
+#mapArea.settled #map{position:absolute;top:0;left:0;right:0;visibility:hidden}
+.xp{position:absolute;top:0;left:0;right:0;background:var(--panel);border-radius:12px;padding:20px 22px 22px;text-align:left;
+  transition:clip-path var(--dur) var(--ease),background-color var(--dur) var(--ease);will-change:clip-path}
+#mapArea.settled .xp{position:relative}
+.xp .xin{opacity:0;transition:opacity .18s}
+.xp.in .xin{opacity:1;transition:opacity .25s .2s}
+@media (prefers-reduced-motion:reduce){#mapArea,.xp,.xp .xin,.xp.in .xin,#map{transition:none!important}}
 .ptop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
 .pbadges{display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap}
 .pgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
-.pfeed{max-height:620px;overflow:auto;padding-right:4px}
+.pfeed{max-height:520px;overflow:auto;padding-right:4px}
 .pgrid .sect:first-child{margin-top:0}
-.dname{font-size:21px;font-weight:650;letter-spacing:-.015em;margin:0;line-height:1.25}
+.dname{font-size:18px;font-weight:650;letter-spacing:-.015em;margin:0;line-height:1.25}
 .close{border:1px solid var(--line);background:var(--card);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;flex:none}
 .close:hover{background:var(--hover)}
 .rank tr.xrow td{padding:0 18px 14px;background:transparent!important;border-bottom:1px solid var(--line2)}
-.rank tr.xrow .inl{margin-top:2px}
 .dstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.st{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.st{border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--card)}
 .st .k{font-size:11.5px;color:var(--mute)}
-.st .v{font-size:22px;font-weight:650;letter-spacing:-.02em;line-height:1.3}
+.st .v{font-size:19px;font-weight:650;letter-spacing:-.02em;line-height:1.3}
 .st .v small{font-size:12px;color:var(--mute);font-weight:500}
 .rec{margin-top:14px;background:var(--accent-soft);border:1px solid #f6dccb;border-radius:10px;padding:12px 14px}
 .rec.ok{background:var(--good-soft);border-color:#cfe3d6}.rec.ok .rl{color:var(--good)}
 .rec.hold{background:#f5f5f2;border-color:var(--line)}.rec.hold .rl{color:var(--ink2)}
 .rec .rl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
-.rec .rt{font-size:14px;font-weight:500;margin-top:3px}
+.rec .rt{font-size:13px;font-weight:500;margin-top:3px}
 .rec .rx{font-size:12px;color:var(--ink2);margin-top:4px}
 .guard{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12px;color:var(--mute)}
 .guard span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#cfcec7;margin-right:7px;vertical-align:2px}
-.sect{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:22px 0 10px;display:flex;justify-content:space-between}
+.sect{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:16px 0 8px;display:flex;justify-content:space-between}
 .sect span{text-transform:none;letter-spacing:0;font-weight:400}
 .drv{display:grid;grid-template-columns:minmax(0,1fr) 160px 40px;gap:8px 12px;align-items:center;font-size:12.5px}
 .drv .dl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
@@ -181,7 +191,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .tip span{color:#c9c8c2}
 
 /* Feed */
-.ev{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:11px 0;border-top:1px solid var(--line2)}
+.ev{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line2)}
 .ev:first-child{border-top:0;padding-top:0}
 .ev a{text-decoration:none;font-weight:500;line-height:1.4;display:block}
 .ev a:hover{text-decoration:underline;text-underline-offset:2px}
@@ -201,8 +211,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
   .hwrap,.wrap{padding-left:16px;padding-right:16px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   #map{gap:3px}.tile{font-size:9.5px;border-radius:5px;aspect-ratio:1}.tile small{display:none}.tile .go{top:2px;right:2px;width:5px;height:5px}
-  .flabel{width:100%}
-  .inl{padding:14px}.pgrid{grid-template-columns:1fr;gap:8px}.pfeed{max-height:none}
+  .inl,.xp{padding:14px}.pgrid{grid-template-columns:1fr;gap:8px}.pfeed{max-height:none}
   .drv{grid-template-columns:minmax(0,1fr) 80px 36px}
   .dstats .v{font-size:18px}
 }
@@ -231,7 +240,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
     <section class="card" id="mapCard">
       <div class="ch"><h2>Market heat</h2><span class="sub">Click a state to open it</span></div>
       <div class="cb">
-        <div id="map"></div>
+        <div id="mapArea"><div id="map"></div></div>
         <div class="legend">
           <span><i style="background:var(--hot)"></i>Hot 70+</span><span><i style="background:var(--h)"></i>Warm 40 to 69</span>
           <span><i style="background:var(--w)"></i>Watch 20 to 39</span><span><i style="background:var(--q)"></i>Quiet</span>
@@ -283,13 +292,13 @@ async function init(){
   const tiers={};
   for(const [k,t] of Object.entries(S.meta.types))(tiers[t.tier]||(tiers[t.tier]=[])).push([k,t]);
   const rows=Object.keys(tiers).sort().map(n=>`<div class="frow"><span class="flabel">${TIER_NAME[n]||'Tier '+n}</span>`+tiers[n].map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
-  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· showing all</span></span><button class="linkbtn" id="clearT" hidden>Clear filters</button></div>`+rows;
+  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· all</span></span></div>`+rows+`<button class="linkbtn" id="clearT" hidden>Clear filters</button>`;
   $('chips').onclick=e=>{
     if(e.target.id==='clearT'){S.types.clear();$('chips').querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'))}
     else{const b=e.target.closest('button.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
-    $('clearT').hidden=!S.types.size;$('fcount').textContent=S.types.size?`· ${S.types.size} selected`:'· showing all';refresh();
+    $('clearT').hidden=!S.types.size;$('fcount').textContent=S.types.size?`· ${S.types.size} selected`:'· all';refresh();
   };
-  $('levelSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.l===S.level)return;S.level=b.dataset.l;S.sel=null;S.cache=null;[...$('levelSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mapCard').style.display=S.level==='state'?'':'none';refresh()};
+  $('levelSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.l===S.level)return;S.level=b.dataset.l;resetState();S.sel=null;S.cache=null;[...$('levelSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mapCard').style.display=S.level==='state'?'':'none';refresh()};
   addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sel)closeDetail()});
   renderStatus(S.meta);
   await refresh();
@@ -329,10 +338,8 @@ function renderKpis(){
 function renderMap(){
   if(S.level!=='state')return;
   const m=Object.fromEntries(S.markets.map(x=>[x.key,x]));
-  const sp=S.sel&&GRID[S.sel];const selRow=sp?sp[1]:99;
   $('map').innerHTML=Object.entries(GRID).map(([st,[c,r]])=>{const x=m[st];const s=x?x.score:0;
-    return `<button class="tile t-${lvl(s)} ${s>=20&&weak(x)?'weak':''} ${S.sel===st?'sel':''}" data-k="${st}" style="grid-column:${c+1};grid-row:${r+1+(r>selRow?1:0)};background-color:${fill(s)}" aria-label="${esc(S.meta.states[st]||st)} score ${s}${x?', '+esc(x.call):''}">${go(x)?'<i class="go"></i>':''}${st}${x?`<small class="num">${s}</small>`:''}</button>`}).join('')
-    +(sp?`<div id="detail" class="inl" style="grid-column:1/-1;grid-row:${selRow+2};--cx:${((sp[0]+.5)/11*100).toFixed(2)}%"></div>`:'');
+    return `<button class="tile t-${lvl(s)} ${s>=20&&weak(x)?'weak':''} ${S.sel===st?'sel':''}" data-k="${st}" style="grid-column:${c+1};grid-row:${r+1};background-color:${fill(s)}" aria-label="${esc(S.meta.states[st]||st)} score ${s}${x?', '+esc(x.call):''}">${go(x)?'<i class="go"></i>':''}${st}${x?`<small class="num">${s}</small>`:''}</button>`}).join('');
   const tip=$('mtip');
   const show=e=>{const t=e.target.closest('.tile');if(!t){tip.style.opacity=0;return}const x=m[t.dataset.k];const s=x?x.score:0;
     tip.innerHTML=`<div><b class="num">${s}</b> ${esc(S.meta.states[t.dataset.k]||t.dataset.k)}</div><div class="mt">${x?`${esc(x.call)}${x.win&&x.win.lastTrigger!=null?` · ${x.win.daysLeft}d left`:''}${x.afford?` · income ${Math.round(x.afford.ratio*100)}% of US`:''}`:'Quiet'}</div>`;
@@ -340,7 +347,6 @@ function renderMap(){
   $('map').onpointerover=show;$('map').onfocusin=show;
   $('map').onpointerleave=()=>tip.style.opacity=0;$('map').onfocusout=()=>tip.style.opacity=0;
   $('map').onclick=e=>{const t=e.target.closest('.tile');if(t){tip.style.opacity=0;openMarket(t.dataset.k)}};
-  if(sp)paintDetail();
 }
 
 function renderRank(){
@@ -354,19 +360,73 @@ function renderRank(){
      <td style="white-space:nowrap">${winTag(x)}</td>
      <td>${incTag(x.afford)}</td>
      <td class="drivers">${x.topTypes.slice(0,2).map(t=>esc(tlabel(t))).join(', ')}</td>
-     <td class="rec2">${esc(x.action)}</td><td class="chev">${S.sel===x.key?'⌄':'›'}</td></tr>`+(S.level==='city'&&S.sel===x.key?`<tr class="xrow"><td colspan="9"><div id="detail" class="inl" style="--cx:120px"></div></td></tr>`:'')).join('')+`</tbody></table>`;
+     <td class="rec2">${esc(x.action)}</td><td class="chev">${S.sel===x.key?'⌄':'›'}</td></tr>`+(S.level==='city'&&S.sel===x.key?`<tr class="xrow"><td colspan="9"><div id="detail" class="inl"></div></td></tr>`:'')).join('')+`</tbody></table>`;
   $('rank').onclick=e=>{const t=e.target.closest('tr.row');if(t)openMarket(t.dataset.k)};
   $('rank').onkeydown=e=>{if(e.key==='Enter'){const t=e.target.closest('tr.row');if(t)openMarket(t.dataset.k)}};
   if(S.level==='city'&&S.sel)paintDetail();
 }
 
-// Click a state (or a city row) to open its details in place; click it again or press Esc to close.
+// Click a state: its square grows into the details view, flat in the map's place. Click X, Esc, or the state again to shrink back.
+// Cities have no map, so the row expands in place.
+const DUR=matchMedia('(prefers-reduced-motion: reduce)').matches?0:450;
+let animating=false;
 function openMarket(k){
+  if(S.level==='state'){S.sel===k&&$('detail')?closeState():openState(k);return}
   if(S.sel===k){closeDetail();return}
-  S.sel=k;S.cache=null;renderMap();renderRank();loadDetail();
+  S.sel=k;S.cache=null;renderRank();loadDetail();
   const el=$('detail');if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),30);
 }
-function closeDetail(){S.sel=null;S.cache=null;renderMap();renderRank()}
+function closeDetail(){if(S.level==='state'){closeState();return}S.sel=null;S.cache=null;renderRank()}
+
+// clip-path that shows only the given tile's square, in the panel's own coordinates
+function tileClip(k,panelH){
+  const t=document.querySelector(`#map .tile[data-k="${k}"]`);if(!t)return 'inset(0 round 12px)';
+  const a=$('mapArea').getBoundingClientRect(),r=t.getBoundingClientRect();
+  const top=r.top-a.top,left=r.left-a.left;
+  return `inset(${top}px ${a.width-left-r.width}px ${Math.max(0,panelH-top-r.height)}px ${left}px round 7px)`;
+}
+function tileColor(k){const x=S.markets.find(m=>m.key===k);return fill(x?x.score:0)}
+
+function openState(k){
+  if(animating)return;
+  const area=$('mapArea');let p=$('detail');
+  S.cache=null;
+  if(p){S.sel=k;renderMap();renderRank();paintDetail();loadDetail();return} // already open: swap in the new state
+  S.sel=k;renderRank();
+  $('mapCard').scrollIntoView({behavior:DUR?'smooth':'auto',block:'start'});
+  const mapH=$('map').offsetHeight;
+  p=document.createElement('div');p.id='detail';p.className='xp';
+  area.appendChild(p);paintDetail();
+  const h=Math.max(mapH,p.offsetHeight);
+  area.style.height=mapH+'px';
+  p.style.minHeight=mapH+'px';p.style.backgroundColor=tileColor(k);p.style.clipPath=tileClip(k,h);
+  p.getBoundingClientRect(); // lock the start frame before animating
+  animating=true;
+  requestAnimationFrame(()=>{
+    area.classList.add('open');area.style.height=h+'px';
+    p.style.clipPath='inset(0px 0px 0px 0px round 12px)';p.style.backgroundColor='';p.classList.add('in');
+  });
+  setTimeout(()=>{animating=false;if(S.sel!==k||!$('detail'))return;area.classList.add('settled');area.style.height='';p.style.clipPath='none'},DUR+20);
+  loadDetail();
+}
+
+function closeState(){
+  const area=$('mapArea'),p=$('detail');
+  if(!p){S.sel=null;S.cache=null;renderMap();renderRank();return}
+  if(animating)return;
+  const k=S.sel;animating=true;
+  const h=p.offsetHeight;
+  area.style.height=h+'px';area.classList.remove('settled');p.style.clipPath='inset(0px 0px 0px 0px round 12px)';
+  const mapH=$('map').offsetHeight;
+  p.getBoundingClientRect();
+  requestAnimationFrame(()=>{
+    p.classList.remove('in');p.style.clipPath=tileClip(k,h);p.style.backgroundColor=tileColor(k);
+    area.style.height=mapH+'px';area.classList.remove('open');
+  });
+  setTimeout(()=>{animating=false;resetState();S.sel=null;S.cache=null;renderMap();renderRank()},DUR+20);
+}
+// remove the panel without animating (level switch)
+function resetState(){const area=$('mapArea'),p=$('detail');if(area&&p&&area.contains(p))p.remove();if(area){area.classList.remove('open','settled');area.style.height=''}}
 
 function selMarket(){const key=S.sel;return S.markets.find(x=>x.key===key)||{key,score:0,delta:0,level:'Quiet',call:'Hold',topTypes:[],byType:{},win:null,afford:null,action:'No change',expire:''}}
 
@@ -374,10 +434,10 @@ function selMarket(){const key=S.sel;return S.markets.find(x=>x.key===key)||{key
 function paintDetail(){
   const el=$('detail');if(!el||!S.sel)return;
   const m=selMarket();const c=S.cache&&S.cache.key===S.sel?S.cache:{h:null,ev:null};
-  el.innerHTML=`<div class="ptop"><div><div class="sub">${S.level==='state'?'State':'City'}</div><h3 class="dname">${esc(marketName(m.key))}</h3>
+  el.innerHTML=`<div class="xin"><div class="ptop"><div><div class="sub">${S.level==='state'?'State':'City'}</div><h3 class="dname">${esc(marketName(m.key))}</h3>
       <div class="pbadges">${callTag(m)}<span class="badge b-${m.level}">${esc(m.level)}</span>${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span></div></div>
     <button class="close" id="pClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-    ${bodyHtml(m,c.h,c.ev)}`;
+    ${bodyHtml(m,c.h,c.ev)}</div>`;
   el.onclick=e=>e.stopPropagation();
   $('pClose').onclick=closeDetail;
   if(c.h)renderHist(c.h);
@@ -421,7 +481,7 @@ function bodyHtml(m,h,ev){
 function renderHist(h){
   const el=$('hist');
   if(!h||h.length<2){el.innerHTML='<div class="empty">Not enough history yet.</div>';return}
-  const W=600,H=180,p={l:26,r:6,t:10,b:22};const max=Math.max(100,...h.map(x=>x.score));
+  const W=600,H=150,p={l:26,r:6,t:10,b:22};const max=Math.max(100,...h.map(x=>x.score));
   const x=i=>p.l+i*(W-p.l-p.r)/(h.length-1),y=v=>p.t+(H-p.t-p.b)*(1-v/max);
   const pts=h.map((d,i)=>`${x(i).toFixed(1)},${y(d.score).toFixed(1)}`).join(' ');
   const area=`${x(0).toFixed(1)},${y(0)} ${pts} ${x(h.length-1).toFixed(1)},${y(0)}`;
