@@ -55,7 +55,7 @@ app.get('/api/markets', async (req, res) => {
       const cityRanked = rankMarkets(await loadGroups('city', types));
       for (const m of ranked) {
         m.cities = cityRanked.filter(c => c.key.endsWith(', ' + m.key) && c.score >= 20).slice(0, 4).map(c => c.key.split(', ')[0]);
-        Object.assign(m, actionFor(m.score, m.topTypes, m.cities));
+        Object.assign(m, actionFor(m.score, m.topTypes, m.cities, m.durability, m.activeDays));
       }
     }
     res.json(ranked);

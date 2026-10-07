@@ -14,12 +14,13 @@
   --bg:#f5f5f2;--card:#ffffff;--ink:#121212;--ink2:#4f4e4a;--mute:#8a8882;--line:#e6e5df;--line2:#efeee9;--hover:#f7f6f2;
   --accent:#b23c0b;--accent-soft:#fdf1e9;
   --q:#efeee9;--w:#eda36b;--h:#dd6a2a;--hot:#b23c0b;
-  --up:#b23c0b;--down:#2f7d4a;
+  --up:#b23c0b;--down:#2f7d4a;--good:#2f7d4a;--good-soft:#e8f3ec;
   --r:12px;--shadow:0 1px 2px rgba(18,18,18,.04),0 1px 1px rgba(18,18,18,.03);
 }
 *{box-sizing:border-box}
 html,body{background:var(--bg)}
 body{margin:0;color:var(--ink);font:14px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
+body.locked{overflow:hidden}
 .num{font-variant-numeric:tabular-nums}
 a{color:inherit}
 button{font:inherit;color:inherit}
@@ -40,15 +41,14 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .bar{height:5px;width:120px;background:var(--line2);border-radius:99px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--ink);border-radius:99px}
 
-/* Toolbar */
+/* Toolbar + filters */
 .wrap{max-width:1480px;margin:0 auto;padding:18px 24px 40px}
 .toolbar{display:flex;gap:14px 20px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
-.tleft{display:flex;gap:14px;align-items:center;flex-wrap:wrap;min-width:0}
 .seg{display:inline-flex;background:var(--line2);border-radius:9px;padding:3px}
 .seg button{border:0;background:none;padding:5px 14px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink2)}
 .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .filters{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px 14px;margin-bottom:16px;display:grid;gap:8px}
-.frow{display:flex;gap:6px 6px;flex-wrap:wrap;align-items:center}
+.frow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .flabel{font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;width:64px;flex:none}
 .fhead{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mute)}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:4px 11px;font-size:12.5px;cursor:pointer;color:var(--ink2);transition:background .12s,border-color .12s}
@@ -67,51 +67,103 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .kpi .v{font-size:26px;font-weight:650;letter-spacing:-.02em;margin-top:2px;line-height:1.2}
 .kpi .v.sm{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:6px}
 .kpi .d{font-size:12px;color:var(--ink2);margin-top:2px}
+.kpi.hl{border-color:#cfe3d6;background:linear-gradient(0deg,#fff,#fff) padding-box}
 
-/* Layout */
-.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px;align-items:start}
-.col{display:grid;gap:16px;min-width:0}
+/* Cards */
+.stack{display:grid;gap:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);min-width:0}
-.ch{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px 0}
+.ch{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 18px 0;flex-wrap:wrap}
 .ch h2{font-size:13.5px;font-weight:600;margin:0}
 .ch .sub{font-size:12px}
 .cb{padding:12px 18px 18px}
 
-/* Tile map */
+/* Map */
+.mapwrap{display:grid;grid-template-columns:minmax(0,760px) minmax(220px,1fr);gap:28px;align-items:start}
 #map{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:5px}
-.tile{aspect-ratio:1;border-radius:7px;background:var(--q);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;cursor:pointer;border:0;padding:0;min-width:0;color:var(--ink2);transition:transform .1s,box-shadow .1s;outline:none}
+.tile{aspect-ratio:1;border-radius:7px;background:var(--q);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;cursor:pointer;border:0;padding:0;min-width:0;color:var(--ink2);transition:transform .1s,box-shadow .1s;outline:none;position:relative}
 .tile small{font-weight:500;font-size:10px;opacity:.85}
 .tile:hover,.tile:focus-visible{transform:translateY(-1px);box-shadow:0 0 0 2px var(--card),0 0 0 3.5px #bdbcb5}
 .tile.sel{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
+.tile.weak{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
+.tile.weak.t-Hot{text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .t-Watch,.t-Warm{color:#1d140d}.t-Hot{color:#fff}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--ink2);margin-top:14px;flex-wrap:wrap;align-items:center}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
-.citynote{color:var(--mute);font-size:13px;padding:6px 0 2px}
+.aside h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:0 0 8px}
+.aside .blk{margin-bottom:20px}
+.lg{display:grid;gap:7px;font-size:12.5px;color:var(--ink2)}
+.lg span{display:flex;align-items:center;gap:8px}
+.lg i{width:14px;height:14px;border-radius:4px;display:inline-block;flex:none}
+.lg i.weak{background:var(--h);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
+.aside p{font-size:12.5px;color:var(--ink2);margin:0}
 
-/* Detail */
-.dhead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
-.dname{font-size:20px;font-weight:650;letter-spacing:-.015em;margin:0}
-.dscore{display:flex;align-items:baseline;gap:10px}
-.dscore b{font-size:40px;font-weight:700;letter-spacing:-.03em;line-height:1}
-.dscore span{font-size:13px;color:var(--mute)}
-.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:600;line-height:1.6}
+/* Badges, durability */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:600;line-height:1.6;white-space:nowrap}
 .b-Hot{background:var(--hot);color:#fff}.b-Warm{background:var(--h);color:#1d140d}.b-Watch{background:var(--w);color:#1d140d}.b-Quiet{background:var(--q);color:var(--ink2)}
+.dur{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;white-space:nowrap}
+.dur i{width:7px;height:7px;border-radius:50%;flex:none}
+.d-Sustained{color:var(--good)}.d-Sustained i{background:var(--good)}
+.d-Building{color:#8a5a00}.d-Building i{background:#d99a1e}
+.d-Spike,.d-Fading,.d-None{color:var(--mute)}.d-Spike i,.d-Fading i,.d-None i{background:#c4c3bc}
+.dd{color:var(--mute);font-weight:400}
 .delta{font-size:12.5px;font-weight:600}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--mute)}
+
+/* Ranked table */
+.tablewrap{overflow-x:auto;margin:0 -18px}
+.rank{width:100%;border-collapse:collapse;min-width:820px}
+.rank th{text-align:left;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+.rank th:first-child,.rank td:first-child{padding-left:18px}
+.rank td{padding:11px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.rank tr:last-child td{border-bottom:0}
+.rank tr.row{cursor:pointer}
+.rank tr.row:hover td{background:var(--hover)}
+.rank tr.row.sel td{background:#f3f2ed}
+.rank tr.row.sel td:first-child{box-shadow:inset 3px 0 0 var(--ink)}
+.rank tr.dim .mk,.rank tr.dim .rec2{color:var(--mute)}
+.rk{color:var(--mute);font-size:12px;width:34px}
+.mk{font-weight:600;white-space:nowrap}
+.drivers{color:var(--ink2);font-size:12.5px;max-width:260px}
+.rec2{font-size:12.5px;color:var(--ink2);max-width:420px}
+.sc{display:flex;align-items:center;gap:8px;width:130px}
+.sc .sbar{flex:1;height:6px;background:var(--line2);border-radius:99px;overflow:hidden}
+.sc .sbar i{display:block;height:100%;border-radius:99px}
+.sc b{width:26px;text-align:right;font-weight:600}
+.chev{color:#bdbcb5;width:28px;text-align:right;padding-right:18px!important}
+.empty{color:var(--mute);padding:20px 0;text-align:center;font-size:13px}
+.loading{opacity:.55;transition:opacity .15s}
+
+/* Drawer */
+.scrim{position:fixed;inset:0;background:rgba(18,18,18,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:40}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(600px,100vw);background:var(--card);box-shadow:-12px 0 40px rgba(18,18,18,.14);transform:translateX(102%);transition:transform .24s cubic-bezier(.2,.8,.2,1);z-index:50;display:flex;flex-direction:column}
+.drawer.open{transform:none}
+.dtop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px 22px 14px;border-bottom:1px solid var(--line)}
+.dname{font-size:21px;font-weight:650;letter-spacing:-.015em;margin:0;line-height:1.25}
+.close{border:1px solid var(--line);background:var(--card);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;flex:none}
+.close:hover{background:var(--hover)}
+.dbody{overflow:auto;padding:18px 22px 28px;flex:1}
+.dstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.st{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.st .k{font-size:11.5px;color:var(--mute)}
+.st .v{font-size:22px;font-weight:650;letter-spacing:-.02em;line-height:1.3}
+.st .v small{font-size:12px;color:var(--mute);font-weight:500}
 .rec{margin-top:14px;background:var(--accent-soft);border:1px solid #f6dccb;border-radius:10px;padding:12px 14px}
+.rec.ok{background:var(--good-soft);border-color:#cfe3d6}.rec.ok .rl{color:var(--good)}
+.rec.hold{background:#f5f5f2;border-color:var(--line)}.rec.hold .rl{color:var(--ink2)}
 .rec .rl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
 .rec .rt{font-size:14px;font-weight:500;margin-top:3px}
 .rec .rx{font-size:12px;color:var(--ink2);margin-top:4px}
 .guard{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12px;color:var(--mute)}
 .guard span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#cfcec7;margin-right:7px;vertical-align:2px}
-.sect{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:18px 0 8px}
-.drv{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr) 44px;gap:6px 12px;align-items:center;font-size:12.5px}
-.drv .dl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink2)}
-.drv .dl em{font-style:normal;color:var(--mute);font-size:11px;margin-left:4px}
+.sect{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:22px 0 10px;display:flex;justify-content:space-between}
+.sect span{text-transform:none;letter-spacing:0;font-weight:400}
+.drv{display:grid;grid-template-columns:minmax(0,1fr) 110px 74px;gap:8px 12px;align-items:center;font-size:12.5px}
+.drv .dl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.drv .dl em{font-style:normal;color:var(--mute);font-size:11px;margin-left:5px}
 .drv .db{height:8px;background:var(--line2);border-radius:99px;overflow:hidden}
 .drv .db i{display:block;height:100%;background:var(--ink);border-radius:0 4px 4px 0}
-.drv .dv{text-align:right;color:var(--ink2)}
+.days{display:flex;gap:2px;justify-content:flex-end}
+.days i{width:5px;height:12px;border-radius:2px;background:var(--line2)}
+.days i.on{background:var(--ink2)}
 
 /* History chart */
 .chart{position:relative}
@@ -121,52 +173,30 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .tip b{font-size:14px;font-weight:650;margin-right:6px}
 .tip span{color:#c9c8c2}
 
-/* Ranked */
-.rank{width:100%;border-collapse:collapse}
-.rank th{text-align:left;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;padding:0 8px 8px;border-bottom:1px solid var(--line)}
-.rank td{padding:10px 8px;border-bottom:1px solid var(--line2);vertical-align:middle}
-.rank tr:last-child td{border-bottom:0}
-.rank tr.row{cursor:pointer}
-.rank tr.row:hover td{background:var(--hover)}
-.rank tr.row.sel td{background:#f3f2ed}
-.rank tr.row.sel td:first-child{box-shadow:inset 3px 0 0 var(--ink)}
-.rk{color:var(--mute);font-size:12px;width:26px}
-.mk{font-weight:600}
-.mk small{display:block;font-weight:400;color:var(--mute);font-size:12px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
-.sc{display:flex;align-items:center;gap:8px;min-width:110px}
-.sc .sbar{flex:1;height:6px;background:var(--line2);border-radius:99px;overflow:hidden;min-width:40px}
-.sc .sbar i{display:block;height:100%;border-radius:99px}
-.sc b{width:26px;text-align:right;font-weight:600}
-.rankwrap{max-height:520px;overflow:auto;margin:0 -8px}
-
 /* Feed */
-.feed{max-height:520px;overflow:auto;margin:0 -18px}
-.ev{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:11px 18px;border-top:1px solid var(--line2)}
-.ev:first-child{border-top:0}
-.ev:hover{background:var(--hover)}
+.ev{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:11px 0;border-top:1px solid var(--line2)}
+.ev:first-child{border-top:0;padding-top:0}
 .ev a{text-decoration:none;font-weight:500;line-height:1.4;display:block}
 .ev a:hover{text-decoration:underline;text-underline-offset:2px}
 .meta{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:12px;color:var(--mute);margin-top:4px}
 .pill{background:var(--line2);color:var(--ink2);border-radius:5px;padding:1px 7px;font-size:11.5px;font-weight:500}
 .x{border:1px solid transparent;background:none;color:var(--mute);border-radius:7px;font-size:12px;cursor:pointer;padding:3px 8px;white-space:nowrap;flex:none}
 .x:hover{border-color:var(--line);background:var(--card);color:var(--ink)}
-.empty{color:var(--mute);padding:20px 0;text-align:center;font-size:13px}
-.loading{opacity:.55;transition:opacity .15s}
 
 /* Map tooltip */
-#mtip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;opacity:0;z-index:20;max-width:240px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+#mtip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;opacity:0;z-index:20;max-width:260px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 #mtip b{font-size:14px}
 #mtip .mt{color:#c9c8c2;margin-top:2px}
 
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:980px){.grid{grid-template-columns:1fr}}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.mapwrap{grid-template-columns:1fr}.aside{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 24px}}
 @media(max-width:640px){
   .hwrap,.wrap{padding-left:16px;padding-right:16px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   #map{gap:3px}.tile{font-size:9.5px;border-radius:5px}.tile small{display:none}
-  .drv{grid-template-columns:minmax(0,1fr) 80px 36px}
-  .mk small{max-width:150px}.sc{min-width:72px;gap:6px}.sc .sbar{min-width:24px}.rank td{padding:9px 6px}
   .flabel{width:100%}
+  .dtop,.dbody{padding-left:16px;padding-right:16px}
+  .drv{grid-template-columns:minmax(0,1fr) 60px 70px}
+  .dstats .v{font-size:18px}
 }
 </style>
 </head>
@@ -175,7 +205,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
   <div class="hwrap">
     <div class="brand">
       <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="#fff"/></svg></div>
-      <div><h1>Axon TASER Event Tracker</h1><div class="sub">US events likely to lift self-defense interest, scored per market against its own 60 day baseline</div></div>
+      <div><h1>Axon TASER Event Tracker</h1><div class="sub">US events likely to lift self-defense interest, scored per market. Built for stories that hold 1.5 weeks or longer.</div></div>
     </div>
     <div class="status" id="status"></div>
   </div>
@@ -183,48 +213,54 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 
 <div class="wrap">
   <div class="toolbar">
-    <div class="tleft">
-      <div class="seg" id="levelSeg" role="tablist"><button data-l="state" class="on">States</button><button data-l="city">Cities</button></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <a class="btn" href="/api/export.csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export CSV</a>
-    </div>
+    <div class="seg" id="levelSeg"><button data-l="state" class="on">States</button><button data-l="city">Cities</button></div>
+    <a class="btn" href="/api/export.csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export CSV</a>
   </div>
-
   <div class="filters" id="chips"></div>
   <div class="kpis" id="kpis"></div>
 
-  <div class="grid">
-    <div class="col">
-      <section class="card" id="mapCard">
-        <div class="ch"><h2>Market heat</h2><span class="sub" id="mapSub">Click a state for details</span></div>
-        <div class="cb">
-          <div id="map"></div>
-          <div class="legend"><span><i style="background:var(--q)"></i>Quiet</span><span><i style="background:var(--w)"></i>Watch 20+</span><span><i style="background:var(--h)"></i>Warm 40+</span><span><i style="background:var(--hot)"></i>Hot 70+</span></div>
+  <div class="stack" id="main">
+    <section class="card" id="mapCard">
+      <div class="ch"><h2>Market heat</h2><span class="sub">Click a state to open it</span></div>
+      <div class="cb mapwrap">
+        <div id="map"></div>
+        <div class="aside">
+          <div class="blk"><h3>Score</h3><div class="lg">
+            <span><i style="background:var(--hot)"></i>Hot 70+</span><span><i style="background:var(--h)"></i>Warm 40 to 69</span>
+            <span><i style="background:var(--w)"></i>Watch 20 to 39</span><span><i style="background:var(--q)"></i>Quiet</span>
+            <span><i class="weak"></i>Striped: short spike or fading</span></div></div>
+          <div class="blk"><h3>Staying power</h3><div class="lg">
+            <span class="dur d-Sustained"><i></i>Sustained<span class="dd">6+ of last 10 days</span></span>
+            <span class="dur d-Building"><i></i>Building<span class="dd">3 to 5 days</span></span>
+            <span class="dur d-Spike"><i></i>Spike<span class="dd">1 to 2 days</span></span>
+            <span class="dur d-Fading"><i></i>Fading<span class="dd">nothing in 4+ days</span></span></div></div>
+          <div class="blk"><p>One day blips count for about a third. Only Sustained markets get a messaging shift.</p></div>
         </div>
-      </section>
-      <section class="card">
-        <div class="cb" id="detail"></div>
-      </section>
-    </div>
-    <div class="col">
-      <section class="card">
-        <div class="ch"><h2>Ranked markets</h2><span class="sub" id="rankSub"></span></div>
-        <div class="cb"><div class="rankwrap" id="rank"></div></div>
-      </section>
-      <section class="card">
-        <div class="ch"><h2 id="feedTitle">Event feed</h2><span class="sub">Last 14 days</span></div>
-        <div class="cb"><div class="feed" id="feed"></div></div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="ch"><h2>Ranked markets</h2><span class="sub" id="rankSub"></span></div>
+      <div class="cb"><div class="tablewrap" id="rank"></div></div>
+    </section>
   </div>
 </div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dName">
+  <div class="dtop">
+    <div><div class="sub" id="dKind"></div><h3 class="dname" id="dName"></h3><div id="dBadges" style="display:flex;gap:10px;align-items:center;margin-top:6px;flex-wrap:wrap"></div></div>
+    <button class="close" id="dClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="dbody" id="dBody"></div>
+</aside>
 <div id="mtip"></div>
 
 <script>
 const GRID={AK:[0,0],ME:[10,0],VT:[9,1],NH:[10,1],WA:[0,2],ID:[1,2],MT:[2,2],ND:[3,2],MN:[4,2],IL:[5,2],WI:[6,2],MI:[7,2],NY:[8,2],RI:[9,2],MA:[10,2],
 OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IN:[5,3],OH:[6,3],PA:[7,3],NJ:[8,3],CT:[9,3],CA:[0,4],UT:[1,4],CO:[2,4],NE:[3,4],MO:[4,4],KY:[5,4],WV:[6,4],VA:[7,4],MD:[8,4],DE:[9,4],
 AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],GA:[7,6],HI:[0,7],TX:[3,7],FL:[8,7]};
+const SUSTAIN=10;
 const S={level:'state',types:new Set(),sel:null,meta:null,markets:[]};
 let selSeq=0;
 const $=id=>document.getElementById(id);
@@ -235,20 +271,25 @@ const fill=s=>`var(--${s>=70?'hot':s>=40?'h':s>=20?'w':'q'})`;
 const tlabel=t=>S.meta.types[t]?.label||t;
 const j=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
 const fmtDelta=d=>`<span class="delta ${d>0?'up':d<0?'down':'flat'}">${d>0?'▲ +'+d:d<0?'▼ '+d:'No change'}</span>`;
-const ago=t=>{const m=Math.round((Date.now()-new Date(t))/60000);if(m<60)return m<=1?'just now':m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';const d=Math.round(h/24);return d+'d ago'};
+const ago=t=>{const m=Math.round((Date.now()-new Date(t))/60000);if(m<60)return m<=1?'just now':m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago'};
 const marketName=k=>S.level==='state'&&S.meta.states[k]?S.meta.states[k]:k;
+const weak=m=>m&&(m.durability==='Spike'||m.durability==='Fading');
+const actionable=m=>m.score>=40&&m.durability==='Sustained';
+const durTag=m=>{const d=m.durability||'None';return `<span class="dur d-${d}"><i></i>${d==='None'?'No coverage':d}${m.activeDays!=null&&d!=='None'?`<span class="dd num">${m.activeDays}/${SUSTAIN}d</span>`:''}</span>`};
 
 async function init(){
   S.meta=await j('/api/meta');
-  const tiers={1:[],2:[],3:[]};
+  const tiers={};
   for(const [k,t] of Object.entries(S.meta.types))(tiers[t.tier]||(tiers[t.tier]=[])).push([k,t]);
-  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· showing all</span></span><button class="linkbtn" id="clearT" hidden>Clear filters</button></div>`+Object.entries(tiers).filter(([,a])=>a.length).map(([n,a])=>`<div class="frow"><span class="flabel">Tier ${n}</span>`+a.map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
+  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· showing all</span></span><button class="linkbtn" id="clearT" hidden>Clear filters</button></div>`+Object.entries(tiers).map(([n,a])=>`<div class="frow"><span class="flabel">Tier ${n}</span>`+a.map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
   $('chips').onclick=e=>{
-    if(e.target.id==='clearT'){S.types.clear();$('chips').querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'));}
-    else{const b=e.target.closest('.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on');}
+    if(e.target.id==='clearT'){S.types.clear();$('chips').querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'))}
+    else{const b=e.target.closest('.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
     $('clearT').hidden=!S.types.size;$('fcount').textContent=S.types.size?`· ${S.types.size} selected`:'· showing all';refresh();
   };
-  $('levelSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.l===S.level)return;S.level=b.dataset.l;S.sel=null;[...$('levelSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mapCard').style.display=S.level==='state'?'':'none';refresh()};
+  $('levelSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.l===S.level)return;S.level=b.dataset.l;closeDrawer();[...$('levelSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mapCard').style.display=S.level==='state'?'':'none';refresh()};
+  $('dClose').onclick=closeDrawer;$('scrim').onclick=closeDrawer;
+  addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
   renderStatus(S.meta.status);
   await refresh();
   setInterval(async()=>{try{S.meta.status=(await j('/api/meta')).status;renderStatus(S.meta.status)}catch{}refresh()},5*60e3);
@@ -261,96 +302,102 @@ function renderStatus(st){
 }
 
 async function refresh(){
-  document.querySelector('.grid').classList.add('loading');
+  $('main').classList.add('loading');
   try{S.markets=await j(`/api/markets?level=${S.level}${tq()}`)}catch(e){S.markets=[]}
-  document.querySelector('.grid').classList.remove('loading');
-  if(S.sel&&S.level==='city'&&!S.markets.some(m=>m.key===S.sel))S.sel=null;
-  if(!S.sel&&S.markets.length)S.sel=S.markets[0].key;
-  renderKpis();renderMap();renderRank();renderSel();
+  $('main').classList.remove('loading');
+  renderKpis();renderMap();renderRank();
+  if(S.sel)renderDrawer(false);
 }
 
 function renderKpis(){
   const c={Hot:0,Warm:0,Watch:0};S.markets.forEach(m=>{if(c[m.level]!=null)c[m.level]++});
-  const top=S.markets[0];
-  const riser=[...S.markets].sort((a,b)=>b.delta-a.delta)[0];
+  const act=S.markets.filter(actionable);
+  const top=act[0];
   const unit=S.level==='state'?'states':'cities';
-  const k=(lab,col,v,d)=>`<div class="kpi"><div class="k">${col?`<i style="background:${col}"></i>`:''}${lab}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`;
-  const ks=(lab,v,d)=>`<div class="kpi"><div class="k">${lab}</div><div class="v sm" title="${esc(v)}">${esc(v)}</div><div class="d">${d}</div></div>`;
+  const k=(lab,col,v,d,cls='')=>`<div class="kpi ${cls}"><div class="k">${col?`<i style="background:${col}"></i>`:''}${lab}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`;
   $('kpis').innerHTML=
+    k('Actionable','var(--good)',act.length,`Warm+ and sustained ${unit}`,'hl')+
     k('Hot','var(--hot)',c.Hot,`${unit} at 70+`)+
     k('Warm','var(--h)',c.Warm,`${unit} at 40 to 69`)+
     k('Watch','var(--w)',c.Watch,`${unit} at 20 to 39`)+
-    ks('Top market',top?marketName(top.key):'None yet',top?`Score <b class="num">${top.score}</b> · ${esc(top.level)}`:'&nbsp;')+
-    ks('Biggest 7 day riser',riser&&riser.delta>0?marketName(riser.key):'None',riser&&riser.delta>0?`${fmtDelta(riser.delta)} to ${riser.score}`:'No market rising');
+    `<div class="kpi"><div class="k">Top sustained market</div><div class="v sm" title="${esc(top?marketName(top.key):'')}">${esc(top?marketName(top.key):'None yet')}</div><div class="d">${top?`Score <b class="num">${top.score}</b> · ${top.activeDays} of last ${SUSTAIN} days`:'Nothing has held a week yet'}</div></div>`;
 }
 
 function renderMap(){
   if(S.level!=='state')return;
   const m=Object.fromEntries(S.markets.map(x=>[x.key,x]));
   $('map').innerHTML=Object.entries(GRID).map(([st,[c,r]])=>{const x=m[st];const s=x?x.score:0;
-    return `<button class="tile t-${lvl(s)} ${S.sel===st?'sel':''}" data-k="${st}" style="grid-column:${c+1};grid-row:${r+1};background:${fill(s)}" aria-label="${esc(S.meta.states[st]||st)} score ${s}">${st}${x?`<small class="num">${s}</small>`:''}</button>`}).join('');
+    return `<button class="tile t-${lvl(s)} ${s>=20&&weak(x)?'weak':''} ${S.sel===st?'sel':''}" data-k="${st}" style="grid-column:${c+1};grid-row:${r+1};background-color:${fill(s)}" aria-label="${esc(S.meta.states[st]||st)} score ${s}">${st}${x?`<small class="num">${s}</small>`:''}</button>`}).join('');
   const tip=$('mtip');
   const show=e=>{const t=e.target.closest('.tile');if(!t){tip.style.opacity=0;return}const x=m[t.dataset.k];const s=x?x.score:0;
-    tip.innerHTML=`<div><b class="num">${s}</b> ${esc(S.meta.states[t.dataset.k]||t.dataset.k)}</div><div class="mt">${esc(lvl(s))}${x&&x.topTypes.length?' · '+esc(tlabel(x.topTypes[0])):''}</div>`;
-    const r=t.getBoundingClientRect();tip.style.left=Math.min(innerWidth-250,r.left+r.width/2-40)+'px';tip.style.top=(r.top-52)+'px';tip.style.opacity=1};
+    tip.innerHTML=`<div><b class="num">${s}</b> ${esc(S.meta.states[t.dataset.k]||t.dataset.k)}</div><div class="mt">${esc(lvl(s))}${x?` · ${esc(x.durability)} ${x.activeDays}/${SUSTAIN}d`:''}${x&&x.topTypes.length?' · '+esc(tlabel(x.topTypes[0])):''}</div>`;
+    const r=t.getBoundingClientRect();tip.style.left=Math.max(8,Math.min(innerWidth-270,r.left+r.width/2-40))+'px';tip.style.top=(r.top-54)+'px';tip.style.opacity=1};
   $('map').onpointerover=show;$('map').onfocusin=show;
   $('map').onpointerleave=()=>tip.style.opacity=0;$('map').onfocusout=()=>tip.style.opacity=0;
-  $('map').onclick=e=>{const t=e.target.closest('.tile');if(!t)return;select(t.dataset.k)};
+  $('map').onclick=e=>{const t=e.target.closest('.tile');if(t){tip.style.opacity=0;openMarket(t.dataset.k)}};
 }
-
-function select(k){S.sel=k;renderMap();renderRank();renderSel()}
 
 function renderRank(){
-  $('rankSub').textContent=S.markets.length?`${Math.min(S.markets.length,25)} of ${S.markets.length} scored`:'';
+  $('rankSub').textContent=S.markets.length?`Top ${Math.min(S.markets.length,30)} of ${S.markets.length} scored · click a row for details`:'';
   if(!S.markets.length){$('rank').innerHTML='<div class="empty">No scored markets yet. The first pull runs shortly after deploy and history fills in over the first hour.</div>';return}
-  $('rank').innerHTML=`<table class="rank"><thead><tr><th>#</th><th>Market</th><th>Score</th><th>7d</th></tr></thead><tbody>`+S.markets.slice(0,25).map((x,i)=>
-    `<tr class="row ${S.sel===x.key?'sel':''}" data-k="${esc(x.key)}" tabindex="0"><td class="rk num">${i+1}</td>
-     <td class="mk">${esc(marketName(x.key))}<small>${x.topTypes.map(t=>esc(tlabel(t))).join(', ')}</small></td>
+  $('rank').innerHTML=`<table class="rank"><thead><tr><th>#</th><th>Market</th><th>Score</th><th>7d</th><th>Staying power</th><th>Drivers</th><th>Recommendation</th><th></th></tr></thead><tbody>`+S.markets.slice(0,30).map((x,i)=>
+    `<tr class="row ${S.sel===x.key?'sel':''} ${weak(x)?'dim':''}" data-k="${esc(x.key)}" tabindex="0"><td class="rk num">${i+1}</td>
+     <td class="mk">${esc(marketName(x.key))}</td>
      <td><div class="sc"><span class="sbar"><i style="width:${x.score}%;background:${fill(x.score)}"></i></span><b class="num">${x.score}</b></div></td>
-     <td class="num">${x.delta>0?`<span class="delta up">+${x.delta}</span>`:x.delta<0?`<span class="delta down">${x.delta}</span>`:'<span class="flat">0</span>'}</td></tr>`).join('')+`</tbody></table>`;
-  $('rank').onclick=e=>{const t=e.target.closest('tr.row');if(t)select(t.dataset.k)};
-  $('rank').onkeydown=e=>{if(e.key==='Enter'){const t=e.target.closest('tr.row');if(t)select(t.dataset.k)}};
+     <td class="num">${x.delta>0?`<span class="delta up">+${x.delta}</span>`:x.delta<0?`<span class="delta down">${x.delta}</span>`:'<span class="flat">0</span>'}</td>
+     <td>${durTag(x)}</td>
+     <td class="drivers">${x.topTypes.slice(0,2).map(t=>esc(tlabel(t))).join(', ')}</td>
+     <td class="rec2">${esc(x.action)}</td><td class="chev">›</td></tr>`).join('')+`</tbody></table>`;
+  $('rank').onclick=e=>{const t=e.target.closest('tr.row');if(t)openMarket(t.dataset.k)};
+  $('rank').onkeydown=e=>{if(e.key==='Enter'){const t=e.target.closest('tr.row');if(t)openMarket(t.dataset.k)}};
 }
 
-async function renderSel(){
-  const seq=++selSeq;
-  if(!S.sel){$('feed').innerHTML='<div class="empty">Pick a market.</div>';$('detail').innerHTML='<div class="empty">Pick a market to see its score, drivers and history.</div>';$('feedTitle').textContent='Event feed';return}
-  const key=S.sel;
-  const m=S.markets.find(x=>x.key===key)||{key,score:0,delta:0,level:'Quiet',topTypes:[],byType:{},action:'No change',expire:''};
-  $('feedTitle').textContent=`Event feed · ${marketName(key)}`;
-  if(renderSel.last!==key){renderDetail(m,null);renderSel.last=key}
-  let ev=[],h=[];
-  try{[ev,h]=await Promise.all([j(`/api/events?market=${encodeURIComponent(key)}&days=14${tq()}`),j(`/api/history?market=${encodeURIComponent(key)}&level=${S.level}&days=90${tq()}`)])}catch(e){}
-  if(seq!==selSeq)return; // a newer selection won, drop this stale response
-  renderDetail(m,h);
-  $('feed').innerHTML=ev.length?ev.map(e=>`<div class="ev" data-row="${e.id}"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
-    <div class="meta"><span class="pill">${esc(tlabel(e.type))}</span>${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
-    <button class="x" data-id="${e.id}" title="Not relevant. Removes it from scoring">Dismiss</button></div>`).join(''):'<div class="empty">No events in the last 14 days.</div>';
-  $('feed').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;b.disabled=true;
+function openMarket(k){S.sel=k;renderMap();renderRank();renderDrawer(true);
+  $('drawer').classList.add('open');$('scrim').classList.add('open');document.body.classList.add('locked');setTimeout(()=>$('dClose').focus(),50)}
+function closeDrawer(){if(!S.sel&&!$('drawer').classList.contains('open'))return;S.sel=null;$('drawer').classList.remove('open');$('scrim').classList.remove('open');document.body.classList.remove('locked');renderMap();renderRank()}
+
+async function renderDrawer(fresh){
+  const seq=++selSeq;const key=S.sel;if(!key)return;
+  const m=S.markets.find(x=>x.key===key)||{key,score:0,delta:0,level:'Quiet',durability:'None',activeDays:0,topTypes:[],byType:{},daysByType:{},action:'No change',expire:''};
+  $('dKind').textContent=S.level==='state'?'State':'City';
+  $('dName').textContent=marketName(key);
+  $('dBadges').innerHTML=`<span class="badge b-${m.level}">${esc(m.level)}</span>${durTag(m)}${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span>`;
+  if(fresh)$('dBody').innerHTML=bodyHtml(m,null,null);
+  let ev=null,h=null;
+  try{[ev,h]=await Promise.all([j(`/api/events?market=${encodeURIComponent(key)}&days=14${tq()}`),j(`/api/history?market=${encodeURIComponent(key)}&level=${S.level}&days=90${tq()}`)])}catch(e){ev=ev||[];h=h||[]}
+  if(seq!==selSeq||S.sel!==key)return; // a newer selection won
+  $('dBody').innerHTML=bodyHtml(m,h,ev);
+  if(h)renderHist(h);
+  $('dBody').querySelector('#feed').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;b.disabled=true;
     await fetch(`/api/events/${b.dataset.id}/dismiss`,{method:'POST'});b.closest('.ev').remove();refresh()};
 }
 
-function renderDetail(m,h){
+function bodyHtml(m,h,ev){
   const by=Object.entries(m.byType||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   const mx=Math.max(...by.map(([,v])=>v),0.01);
-  $('detail').innerHTML=`
-    <div class="dhead">
-      <div><div class="sub">${S.level==='state'?'State':'City'}</div><h3 class="dname">${esc(marketName(m.key))}</h3>
-        <div style="display:flex;gap:10px;align-items:center;margin-top:6px"><span class="badge b-${m.level}">${esc(m.level)}</span>${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span></div></div>
-      <div class="dscore"><b class="num">${m.score}</b><span>/ 100</span></div>
+  const recCls=actionable(m)?'ok':(m.durability==='Sustained'||m.durability==='Building')?'':'hold';
+  const daysBar=n=>`<span class="days" title="${n} of last ${SUSTAIN} days with coverage">${Array.from({length:SUSTAIN},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
+  return `
+    <div class="dstats">
+      <div class="st"><div class="k">Score</div><div class="v num">${m.score}<small> / 100</small></div></div>
+      <div class="st"><div class="k">Days with coverage</div><div class="v num">${m.activeDays??0}<small> of last ${SUSTAIN}</small></div></div>
+      <div class="st"><div class="k">Last covered</div><div class="v num">${m.lastAge==null?'None':m.lastAge===0?'Today':m.lastAge+'<small>d ago</small>'}</div></div>
     </div>
-    <div class="rec"><div class="rl">Recommendation</div><div class="rt">${esc(m.action)}</div>${m.expire?`<div class="rx">${esc(m.expire)}</div>`:''}</div>
+    <div class="rec ${recCls}"><div class="rl">${actionable(m)?'Act on this':recCls==='hold'?'Hold':'Recommendation'}</div><div class="rt">${esc(m.action)}</div>${m.expire?`<div class="rx">${esc(m.expire)}</div>`:''}</div>
     <div class="guard"><span>Confirm with Google Trends or search terms before shifting budget</span><span>Never reference the event in creative</span><span>Add event terms as negatives</span></div>
-    ${by.length?`<div class="sect">Score drivers</div><div class="drv">${by.map(([t,v])=>`<div class="dl" title="${esc(tlabel(t))}">${esc(tlabel(t))}<em>T${S.meta.types[t]?.tier??''}</em></div><div class="db"><i style="width:${(v/mx*100).toFixed(1)}%"></i></div><div class="dv num">${v.toFixed(1)}</div>`).join('')}</div>`:''}
-    <div class="sect">Score history · 90 days</div>
-    <div class="chart" id="hist">${h?'':'<div class="empty">Loading history</div>'}</div>`;
-  if(h)renderHist(h);
+    ${by.length?`<div class="sect">Score drivers<span>Weight · days covered</span></div><div class="drv">${by.map(([t,v])=>`<div class="dl" title="${esc(tlabel(t))}">${esc(tlabel(t))}<em>T${S.meta.types[t]?.tier??''}</em></div><div class="db"><i style="width:${(v/mx*100).toFixed(1)}%"></i></div>${daysBar((m.daysByType||{})[t]||0)}`).join('')}</div>`:''}
+    <div class="sect">Score history<span>90 days</span></div>
+    <div class="chart" id="hist">${h?'':'<div class="empty">Loading history</div>'}</div>
+    <div class="sect">Event feed<span>Last 14 days</span></div>
+    <div id="feed">${ev==null?'<div class="empty">Loading events</div>':ev.length?ev.map(e=>`<div class="ev"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
+      <div class="meta"><span class="pill">${esc(tlabel(e.type))}</span>${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
+      <button class="x" data-id="${e.id}" title="Not relevant. Removes it from scoring">Dismiss</button></div>`).join(''):'<div class="empty">No events in the last 14 days.</div>'}</div>`;
 }
 
 function renderHist(h){
   const el=$('hist');
   if(!h||h.length<2){el.innerHTML='<div class="empty">Not enough history yet.</div>';return}
-  const W=640,H=180,p={l:26,r:6,t:10,b:22};const max=Math.max(100,...h.map(x=>x.score));
+  const W=600,H=180,p={l:26,r:6,t:10,b:22};const max=Math.max(100,...h.map(x=>x.score));
   const x=i=>p.l+i*(W-p.l-p.r)/(h.length-1),y=v=>p.t+(H-p.t-p.b)*(1-v/max);
   const pts=h.map((d,i)=>`${x(i).toFixed(1)},${y(d.score).toFixed(1)}`).join(' ');
   const area=`${x(0).toFixed(1)},${y(0)} ${pts} ${x(h.length-1).toFixed(1)},${y(0)}`;

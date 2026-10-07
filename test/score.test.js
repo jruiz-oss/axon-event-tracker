@@ -27,7 +27,14 @@ assert.equal(geoTag('Nationwide protest planned'), null);
 const day = n => new Date(Date.now() - n * 86400e3).toISOString().slice(0, 10);
 const flat = []; for (let n = 15; n < 70; n++) flat.push({ d: day(n), type: 'mass_casualty', domains: 3 });
 const spike = flat.concat([{ d: day(0), type: 'mass_casualty', domains: 40 }, { d: day(1), type: 'mass_casualty', domains: 25 }]);
-assert.ok(scoreMarket(spike).score > scoreMarket(flat).score + 30, 'spike should outscore flat');
+assert.ok(scoreMarket(spike).score > scoreMarket(flat).score + 15, 'spike should outscore flat');
+// persistence: the same total coverage spread over 8 days beats a 2 day burst
+const steady = flat.concat([0, 1, 2, 3, 4, 5, 6, 7].map(n => ({ d: day(n), type: 'mass_casualty', domains: 8 })));
+assert.ok(scoreMarket(steady).score > scoreMarket(spike).score, 'sustained coverage beats a short burst');
+assert.equal(scoreMarket(steady).durability, 'Sustained');
+assert.equal(scoreMarket(spike).durability, 'Spike');
+assert.equal(scoreMarket(flat.concat([{ d: day(6), type: 'mass_casualty', domains: 30 }])).durability, 'Fading');
+assert.match(actionFor(80, ['carjacking'], [], 'Spike', 1).action, /Don't shift/);
 const old = flat.concat([{ d: day(13), type: 'mass_casualty', domains: 40 }]);
 assert.ok(scoreMarket(spike).score > scoreMarket(old).score, 'recent beats old');
 assert.equal(actionFor(80).level, 'Hot');
