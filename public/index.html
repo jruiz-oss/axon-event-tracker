@@ -78,24 +78,26 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .cb{padding:12px 18px 18px}
 
 /* Map */
-.mapwrap{display:grid;grid-template-columns:minmax(0,760px) minmax(220px,1fr);gap:28px;align-items:start}
-#map{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:5px}
-.tile{aspect-ratio:1;border-radius:7px;background:var(--q);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;cursor:pointer;border:0;padding:0;min-width:0;color:var(--ink2);transition:transform .1s,box-shadow .1s;outline:none;position:relative}
-.tile small{font-weight:500;font-size:10px;opacity:.85}
+#map{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:6px}
+.tile{aspect-ratio:1.45;border-radius:7px;background:var(--q);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;border:0;padding:0;min-width:0;color:var(--ink2);transition:transform .1s,box-shadow .1s;outline:none;position:relative}
+.tile small{font-weight:500;font-size:11px;opacity:.85}
 .tile:hover,.tile:focus-visible{transform:translateY(-1px);box-shadow:0 0 0 2px var(--card),0 0 0 3.5px #bdbcb5}
 .tile.sel{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
 .tile.weak{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
 .tile.weak.t-Hot{text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .tile .go{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff}
 .t-Watch,.t-Warm{color:#1d140d}.t-Hot{color:#fff}
-.aside h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:0 0 8px}
-.aside .blk{margin-bottom:20px}
-.lg{display:grid;gap:7px;font-size:12.5px;color:var(--ink2)}
-.lg span{display:flex;align-items:center;gap:8px}
-.lg i.go{width:9px;height:9px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line)}
-.lg i{width:14px;height:14px;border-radius:4px;display:inline-block;flex:none}
-.lg i.weak{background:var(--h);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
-.aside p{font-size:12.5px;color:var(--ink2);margin:0}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:14px;font-size:12.5px;color:var(--ink2)}
+.legend>span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:12px;height:12px;border-radius:4px;display:inline-block;flex:none}
+.legend i.go{width:9px;height:9px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line)}
+.legend i.weak{background:var(--h);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
+.how{margin-left:auto;font-size:12.5px}
+.how summary{cursor:pointer;color:var(--ink2);font-weight:500;list-style:none}
+.how summary::-webkit-details-marker{display:none}
+.how summary::after{content:" ▾";color:var(--mute)}
+.how[open]{flex-basis:100%;margin-left:0;background:var(--hover);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.how p{margin:8px 0 0;color:var(--ink2);max-width:900px}
 
 /* Badges, calls */
 .badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:600;line-height:1.6;white-space:nowrap}
@@ -190,11 +192,11 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 #mtip b{font-size:14px}
 #mtip .mt{color:#c9c8c2;margin-top:2px}
 
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.mapwrap{grid-template-columns:1fr}.aside{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:4px 24px}}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:640px){
   .hwrap,.wrap{padding-left:16px;padding-right:16px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #map{gap:3px}.tile{font-size:9.5px;border-radius:5px}.tile small{display:none}
+  #map{gap:3px}.tile{font-size:9.5px;border-radius:5px;aspect-ratio:1}.tile small{display:none}.tile .go{top:2px;right:2px;width:5px;height:5px}
   .flabel{width:100%}
   .dtop,.dbody{padding-left:16px;padding-right:16px}
   .drv{grid-template-columns:minmax(0,1fr) 80px 36px}
@@ -224,16 +226,16 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
   <div class="stack" id="main">
     <section class="card" id="mapCard">
       <div class="ch"><h2>Market heat</h2><span class="sub">Click a state to open it</span></div>
-      <div class="cb mapwrap">
+      <div class="cb">
         <div id="map"></div>
-        <div class="aside">
-          <div class="blk"><h3>Heat score</h3><div class="lg">
-            <span><i style="background:var(--hot)"></i>Hot 70+</span><span><i style="background:var(--h)"></i>Warm 40 to 69</span>
-            <span><i style="background:var(--w)"></i>Watch 20 to 39</span><span><i style="background:var(--q)"></i>Quiet</span>
-            <span><i class="go"></i>Launch or extend now</span>
-            <span><i class="weak"></i>Striped: hold or wind down</span></div></div>
-          <div class="blk"><h3>How a call is made</h3><p>A <b>trigger</b> is a jump well above the market's normal, picked up by 4+ outlets (3 if someone was killed, stabbed or shot). It opens a 14 day buying window. Repeat incidents keep it open, an arrest shortens it, a suspect at large extends it.</p></div>
-          <div class="blk"><h3>Purchase power</h3><p>Median household income vs the US. Under 85% holds, 85 to 110% runs with top 50% income targeting, 110%+ runs as is. Cities use their metro.</p></div>
+        <div class="legend">
+          <span><i style="background:var(--hot)"></i>Hot 70+</span><span><i style="background:var(--h)"></i>Warm 40 to 69</span>
+          <span><i style="background:var(--w)"></i>Watch 20 to 39</span><span><i style="background:var(--q)"></i>Quiet</span>
+          <span><i class="go"></i>Launch or extend now</span><span><i class="weak"></i>Hold or wind down</span>
+          <details class="how"><summary>How calls are made</summary>
+            <p>A <b>trigger</b> is a major story: 3x the market's normal and picked up by 8+ outlets (6 if someone was killed, stabbed or shot). Everyday crime in busy cities doesn't count, so most markets sit on Hold most days. A trigger opens a 14 day buying window. Repeat incidents keep it open, an arrest shortens it, a suspect at large extends it.</p>
+            <p><b>Purchase power</b> is median household income vs the US. Under 85% holds, 85 to 110% runs with top 50% income targeting, 110%+ runs as is. Cities use their metro.</p>
+          </details>
         </div>
       </div>
     </section>
