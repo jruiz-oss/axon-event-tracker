@@ -49,7 +49,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .filters{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px 14px;margin-bottom:16px;display:grid;gap:8px}
 .frow{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.flabel{font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;width:64px;flex:none}
+.flabel{font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;width:92px;flex:none}
 .fhead{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mute)}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:4px 11px;font-size:12.5px;cursor:pointer;color:var(--ink2);transition:background .12s,border-color .12s}
 .chip:hover{border-color:#cfcec7}
@@ -166,10 +166,6 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .drv .db{height:8px;background:var(--line2);border-radius:99px;overflow:hidden}
 .drv .db i{display:block;height:100%;background:var(--ink);border-radius:0 4px 4px 0}
 .drv .dv{text-align:right;color:var(--ink2)}
-.safety{margin-top:12px;border:1px solid #ecd9a8;background:#fdf8ea;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#6b4e00}
-.safety b{font-weight:600}
-.chip.ctx{cursor:default;background:var(--line2);border-color:var(--line2);color:var(--mute)}
-.pill.ctx{background:#fdf1e0;color:#8a5a00}
 
 /* History chart */
 .chart{position:relative}
@@ -287,10 +283,9 @@ const winTag=m=>{const w=m.win;if(!w||w.lastTrigger==null)return '<span class="d
 async function init(){
   S.meta=await j('/api/meta');
   const tiers={};
-  for(const [k,t] of Object.entries(S.meta.types))(tiers[t.context?'ctx':t.tier]||(tiers[t.context?'ctx':t.tier]=[])).push([k,t]);
-  const rows=Object.keys(tiers).filter(n=>n!=='ctx').sort().map(n=>`<div class="frow"><span class="flabel">${TIER_NAME[n]||'Tier '+n}</span>`+tiers[n].map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
-  const ctx=tiers.ctx?`<div class="frow"><span class="flabel">Context</span>`+tiers.ctx.map(([,t])=>`<span class="chip ctx" title="Tracked for brand safety, never scored">${esc(t.label)}</span>`).join('')+`<span class="dd">Not scored. Shown for brand safety only.</span></div>`:'';
-  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· showing all</span></span><button class="linkbtn" id="clearT" hidden>Clear filters</button></div>`+rows+ctx;
+  for(const [k,t] of Object.entries(S.meta.types))(tiers[t.tier]||(tiers[t.tier]=[])).push([k,t]);
+  const rows=Object.keys(tiers).sort().map(n=>`<div class="frow"><span class="flabel">${TIER_NAME[n]||'Tier '+n}</span>`+tiers[n].map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
+  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· showing all</span></span><button class="linkbtn" id="clearT" hidden>Clear filters</button></div>`+rows;
   $('chips').onclick=e=>{
     if(e.target.id==='clearT'){S.types.clear();$('chips').querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'))}
     else{const b=e.target.closest('button.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
@@ -389,8 +384,6 @@ function bodyHtml(m,h,ev){
   const mx=Math.max(...by.map(([,v])=>v),0.01);
   const w=m.win,a=m.afford;
   const recCls=go(m)?'ok':weak(m)?'hold':'';
-  const ctx=Object.entries((w&&w.context)||{}).filter(([,v])=>v>0);
-  const ctxN=ctx.reduce((s,[,v])=>s+v,0);
   const winV=w&&w.lastTrigger!=null?`${w.daysLeft}<small> days left</small>`:'None';
   const winD=w&&w.lastTrigger!=null?`Trigger ${w.lastTrigger===0?'today':w.lastTrigger+'d ago'}${w.severe?' · severe':''}${w.incidents>1?` · ${w.incidents} incidents`:''}${w.note==='unresolved'?' · at large':w.note==='resolved'?' · arrest made':''}`:'No trigger in 3 weeks';
   return `
@@ -401,13 +394,12 @@ function bodyHtml(m,h,ev){
     </div>
     <div class="rec ${recCls}"><div class="rl">${esc(m.call||'Hold')}</div><div class="rt">${esc(m.action)}</div>${m.expire?`<div class="rx">${esc(m.expire)}</div>`:''}</div>
     <div class="guard"><span>Confirm with Google Trends or search terms before shifting budget</span><span>Never reference the event in creative</span><span>Add event terms as negatives</span></div>
-    ${ctxN>=5?`<div class="safety"><b>Brand safety:</b> ${ctx.map(([t,v])=>`${esc(tlabel(t))} (${v} outlets)`).join(', ')} in the news here this week. Not scored. Keep creative neutral and add these terms as negatives.</div>`:''}
     ${by.length?`<div class="sect">Heat drivers<span>Buyer-fit weighted</span></div><div class="drv">${by.map(([t,v])=>`<div class="dl" title="${esc(tlabel(t))}">${esc(tlabel(t))}<em>${esc(TIER_NAME[S.meta.types[t]?.tier]||'')}</em></div><div class="db"><i style="width:${(v/mx*100).toFixed(1)}%"></i></div><div class="dv num">${v.toFixed(1)}</div>`).join('')}</div>`:''}
     <div class="sect">Heat history<span>90 days</span></div>
     <div class="chart" id="hist">${h?'':'<div class="empty">Loading history</div>'}</div>
     <div class="sect">Event feed<span>Last 14 days</span></div>
     <div id="feed">${ev==null?'<div class="empty">Loading events</div>':ev.length?ev.map(e=>`<div class="ev"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
-      <div class="meta"><span class="pill ${S.meta.types[e.type]?.context?'ctx':''}">${esc(tlabel(e.type))}${S.meta.types[e.type]?.context?' · not scored':''}</span>${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
+      <div class="meta"><span class="pill">${esc(tlabel(e.type))}</span>${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
       <button class="x" data-id="${e.id}" title="Not relevant. Removes it from scoring">Dismiss</button></div>`).join(''):'<div class="empty">No events in the last 14 days.</div>'}</div>`;
 }
 

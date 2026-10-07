@@ -36,8 +36,7 @@ async function loadGroups(level, typeFilter, days = 75) {
   const { rows } = await pool.query(sql, [String(days), SEVERE_RX, MINOR_RX, ONGOING_RX, RESOLVED_RX]);
   const groups = new Map();
   for (const r of rows) {
-    // context types (ICE, unrest) always ride along: they're never scored but feed the brand-safety note
-    if (typeFilter && !typeFilter.has(r.type) && !TYPES[r.type]?.context) continue;
+    if (typeFilter && !typeFilter.has(r.type)) continue;
     if (!groups.has(r.mk)) groups.set(r.mk, []);
     groups.get(r.mk).push(r);
   }
@@ -46,7 +45,7 @@ async function loadGroups(level, typeFilter, days = 75) {
 const parseTypes = q => (q ? new Set(String(q).split(',').filter(t => TYPES[t])) : null);
 
 app.get('/api/meta', async (_q, res) => {
-  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight, context: !!v.context }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS), income: incomeStatus() });
+  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS), income: incomeStatus() });
 });
 
 app.get('/api/markets', async (req, res) => {

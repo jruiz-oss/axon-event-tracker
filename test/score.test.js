@@ -32,29 +32,35 @@ assert.ok(scoreMarket(spike).score > scoreMarket(flat).score + 30, 'spike should
 const old = flat.concat([{ d: day(13), type: 'home_invasion', domains: 12, n: 15 }]);
 assert.ok(scoreMarket(spike).score > scoreMarket(old).score, 'recent beats old');
 
-// context types (ICE, unrest) never score
-assert.equal(scoreMarket([{ d: day(0), type: 'ice_enforcement', domains: 50, n: 50 }]).score, 0);
+// ICE and protest coverage score like any high-fit type
+assert.ok(scoreMarket([{ d: day(0), type: 'ice_enforcement', domains: 10, n: 10 }]).score > 0);
+assert.equal(windowFor([{ d: day(0), type: 'unrest', domains: 10, n: 10 }]).lastTrigger, 0);
 
 // severity: same outlets, a murder outweighs a minor incident
 const ev = (sev, minor) => [{ d: day(0), type: 'home_invasion', domains: 6, n: 6, severe: sev, minor }];
 assert.ok(scoreMarket(ev(4, 0)).score > scoreMarket(ev(0, 0)).score && scoreMarket(ev(0, 0)).score > scoreMarket(ev(0, 5)).score, 'severity orders scores');
 
-// triggers need breadth: one outlet is not a trigger, several outlets are; severe incidents need one fewer
+// triggers are for major stories: a handful of outlets is not enough, 8+ is; severe incidents need 6+
 assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 1, n: 1 }]).lastTrigger, null, 'single outlet is not a trigger');
-assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 5, n: 5 }]).lastTrigger, 0);
-assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 3, n: 3 }]).lastTrigger, null);
-assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 3, n: 3, severe: 2 }]).lastTrigger, 0, 'severe needs one fewer outlet');
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 5, n: 5 }]).lastTrigger, null, 'small story is not a trigger');
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 9, n: 9 }]).lastTrigger, 0);
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 6, n: 6, severe: 3 }]).lastTrigger, 0, 'severe needs fewer outlets');
+
+// a high-crime market with steady coverage stays near 0 heat and never triggers on its normal
+const busy = []; for (let n = 0; n < 74; n++) busy.push({ d: day(n), type: 'violent_crime_spike', domains: 10, n: 10 });
+assert.ok(scoreMarket(busy).score < 10, 'steady high crime is not heat');
+assert.equal(windowFor(busy).lastTrigger, null, 'steady high crime is not a trigger');
 
 // window: 14 days from the last trigger, repeats counted, resolved shortens it, unresolved extends it
-const w1 = windowFor([{ d: day(3), type: 'carjacking', domains: 6, n: 6 }]);
+const w1 = windowFor([{ d: day(3), type: 'carjacking', domains: 10, n: 10 }]);
 assert.equal(w1.daysLeft, 11);
-const w2 = windowFor([{ d: day(9), type: 'carjacking', domains: 6, n: 6 }, { d: day(2), type: 'carjacking', domains: 6, n: 6 }]);
+const w2 = windowFor([{ d: day(9), type: 'carjacking', domains: 10, n: 10 }, { d: day(2), type: 'carjacking', domains: 10, n: 10 }]);
 assert.equal(w2.incidents, 2); assert.equal(w2.daysLeft, 12);
-assert.equal(windowFor([{ d: day(4), type: 'carjacking', domains: 6, n: 6 }, { d: day(1), type: 'carjacking', domains: 1, n: 2, resolved: 2 }]).daysLeft, 3, 'arrest shortens');
-assert.equal(windowFor([{ d: day(4), type: 'carjacking', domains: 6, n: 6 }, { d: day(1), type: 'carjacking', domains: 1, n: 2, ongoing: 1 }]).daysLeft, 14, 'at large extends');
+assert.equal(windowFor([{ d: day(4), type: 'carjacking', domains: 10, n: 10 }, { d: day(1), type: 'carjacking', domains: 1, n: 2, resolved: 2 }]).daysLeft, 3, 'arrest shortens');
+assert.equal(windowFor([{ d: day(4), type: 'carjacking', domains: 10, n: 10 }, { d: day(1), type: 'carjacking', domains: 1, n: 2, ongoing: 1 }]).daysLeft, 14, 'at large extends');
 
 // calls
-const win = (daysLeft, incidents = 1) => ({ lastTrigger: 14 - daysLeft, daysLeft, incidents, note: '', context: {} });
+const win = (daysLeft, incidents = 1) => ({ lastTrigger: 14 - daysLeft, daysLeft, incidents, note: '' });
 assert.equal(actionFor(80, ['carjacking'], [], win(12)).call, 'Launch');
 assert.equal(actionFor(80, ['carjacking'], [], win(12, 2)).call, 'Extend');
 assert.equal(actionFor(80, ['carjacking'], [], win(3)).call, 'Wind down');
