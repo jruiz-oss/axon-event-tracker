@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { pool, migrate } from './lib/db.js';
 import { TYPES } from './lib/types.js';
 import { STATES } from './lib/geo.js';
-import { rankMarkets, scoreMarket, dayKey } from './lib/score.js';
+import { rankMarkets, scoreMarket, dayKey, actionFor } from './lib/score.js';
 import { liveIngest, backfill, backfillStatus } from './lib/ingest.js';
 
 const app = express();
@@ -48,8 +48,17 @@ app.get('/api/meta', async (_q, res) => {
 app.get('/api/markets', async (req, res) => {
   try {
     const level = req.query.level === 'city' ? 'city' : 'state';
-    const groups = await loadGroups(level, parseTypes(req.query.types));
-    res.json(rankMarkets(groups).slice(0, level === 'city' ? 50 : 60));
+    const types = parseTypes(req.query.types);
+    const ranked = rankMarkets(await loadGroups(level, types)).slice(0, level === 'city' ? 50 : 60);
+    if (level === 'state') {
+      // Attach the hottest cities inside each state and rebuild the recommendation with them
+      const cityRanked = rankMarkets(await loadGroups('city', types));
+      for (const m of ranked) {
+        m.cities = cityRanked.filter(c => c.key.endsWith(', ' + m.key) && c.score >= 20).slice(0, 4).map(c => c.key.split(', ')[0]);
+        Object.assign(m, actionFor(m.score, m.topTypes, m.cities));
+      }
+    }
+    res.json(ranked);
   } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
 });
 

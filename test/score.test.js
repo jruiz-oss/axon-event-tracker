@@ -30,6 +30,8 @@ assert.ok(scoreMarket(spike).score > scoreMarket(flat).score + 30, 'spike should
 const old = flat.concat([{ d: day(13), type: 'mass_casualty', domains: 40 }]);
 assert.ok(scoreMarket(spike).score > scoreMarket(old).score, 'recent beats old');
 assert.equal(actionFor(80).level, 'Hot');
+assert.ok(!/%|bid/i.test(actionFor(80, ['carjacking'], ['Houston']).action), 'no bid language');
+assert.match(actionFor(80, ['carjacking','home_invasion'], ['Houston','Dallas']).action, /Houston and Dallas/);
 assert.equal(actionFor(5).level, 'Quiet');
 console.log(gdeltQuery('disaster_looting'));
 console.log('all tests passed');
