@@ -67,7 +67,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .kpi .v{font-size:26px;font-weight:650;letter-spacing:-.02em;margin-top:2px;line-height:1.2}
 .kpi .v.sm{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:6px}
 .kpi .d{font-size:12px;color:var(--ink2);margin-top:2px}
-.kpi.hl{border-color:#cfe3d6;background:linear-gradient(0deg,#fff,#fff) padding-box}
+.kpi.hl{border-color:#cfe3d6}
 
 /* Cards */
 .stack{display:grid;gap:16px}
@@ -86,30 +86,34 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .tile.sel{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
 .tile.weak{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
 .tile.weak.t-Hot{text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.tile .go{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff}
 .t-Watch,.t-Warm{color:#1d140d}.t-Hot{color:#fff}
 .aside h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:0 0 8px}
 .aside .blk{margin-bottom:20px}
 .lg{display:grid;gap:7px;font-size:12.5px;color:var(--ink2)}
 .lg span{display:flex;align-items:center;gap:8px}
+.lg i.go{width:9px;height:9px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff,0 0 0 3px var(--line)}
 .lg i{width:14px;height:14px;border-radius:4px;display:inline-block;flex:none}
 .lg i.weak{background:var(--h);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
 .aside p{font-size:12.5px;color:var(--ink2);margin:0}
 
-/* Badges, durability */
+/* Badges, calls */
 .badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:600;line-height:1.6;white-space:nowrap}
 .b-Hot{background:var(--hot);color:#fff}.b-Warm{background:var(--h);color:#1d140d}.b-Watch{background:var(--w);color:#1d140d}.b-Quiet{background:var(--q);color:var(--ink2)}
-.dur{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;white-space:nowrap}
-.dur i{width:7px;height:7px;border-radius:50%;flex:none}
-.d-Sustained{color:var(--good)}.d-Sustained i{background:var(--good)}
-.d-Building{color:#8a5a00}.d-Building i{background:#d99a1e}
-.d-Spike,.d-Fading,.d-None{color:var(--mute)}.d-Spike i,.d-Fading i,.d-None i{background:#c4c3bc}
-.dd{color:var(--mute);font-weight:400}
+.call{display:inline-flex;align-items:center;font-size:12px;font-weight:600;white-space:nowrap;padding:1px 9px;border-radius:99px;line-height:1.7;border:1px solid transparent}
+.c-Launch,.c-Extend{background:var(--good-soft);color:var(--good)}
+.c-Watch{background:#fbf1dc;color:#8a5a00}
+.c-Wind{background:var(--line2);color:var(--ink2)}
+.c-Hold{color:var(--mute);border-color:var(--line)}
+.dd{color:var(--mute);font-weight:400;font-size:12px}
+.i-High{color:var(--good)}.i-Mid{color:var(--ink2)}.i-Low{color:var(--accent)}
+.inc{font-size:12.5px;white-space:nowrap}
 .delta{font-size:12.5px;font-weight:600}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--mute)}
 
 /* Ranked table */
 .tablewrap{overflow-x:auto;margin:0 -18px}
-.rank{width:100%;border-collapse:collapse;min-width:820px}
+.rank{width:100%;border-collapse:collapse;min-width:900px}
 .rank th{text-align:left;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
 .rank th:first-child,.rank td:first-child{padding-left:18px}
 .rank td{padding:11px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
@@ -156,14 +160,16 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 .guard span::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#cfcec7;margin-right:7px;vertical-align:2px}
 .sect{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:22px 0 10px;display:flex;justify-content:space-between}
 .sect span{text-transform:none;letter-spacing:0;font-weight:400}
-.drv{display:grid;grid-template-columns:minmax(0,1fr) 110px 74px;gap:8px 12px;align-items:center;font-size:12.5px}
+.drv{display:grid;grid-template-columns:minmax(0,1fr) 160px 40px;gap:8px 12px;align-items:center;font-size:12.5px}
 .drv .dl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
 .drv .dl em{font-style:normal;color:var(--mute);font-size:11px;margin-left:5px}
 .drv .db{height:8px;background:var(--line2);border-radius:99px;overflow:hidden}
 .drv .db i{display:block;height:100%;background:var(--ink);border-radius:0 4px 4px 0}
-.days{display:flex;gap:2px;justify-content:flex-end}
-.days i{width:5px;height:12px;border-radius:2px;background:var(--line2)}
-.days i.on{background:var(--ink2)}
+.drv .dv{text-align:right;color:var(--ink2)}
+.safety{margin-top:12px;border:1px solid #ecd9a8;background:#fdf8ea;border-radius:10px;padding:10px 14px;font-size:12.5px;color:#6b4e00}
+.safety b{font-weight:600}
+.chip.ctx{cursor:default;background:var(--line2);border-color:var(--line2);color:var(--mute)}
+.pill.ctx{background:#fdf1e0;color:#8a5a00}
 
 /* History chart */
 .chart{position:relative}
@@ -195,7 +201,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
   #map{gap:3px}.tile{font-size:9.5px;border-radius:5px}.tile small{display:none}
   .flabel{width:100%}
   .dtop,.dbody{padding-left:16px;padding-right:16px}
-  .drv{grid-template-columns:minmax(0,1fr) 60px 70px}
+  .drv{grid-template-columns:minmax(0,1fr) 80px 36px}
   .dstats .v{font-size:18px}
 }
 </style>
@@ -205,7 +211,7 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
   <div class="hwrap">
     <div class="brand">
       <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="#fff"/></svg></div>
-      <div><h1>Axon TASER Event Tracker</h1><div class="sub">US events likely to lift self-defense interest, scored per market. Built for stories that hold 1.5 weeks or longer.</div></div>
+      <div><h1>Axon TASER Event Tracker</h1><div class="sub">Where a scary local incident just opened a buying window, in markets that can afford a TASER</div></div>
     </div>
     <div class="status" id="status"></div>
   </div>
@@ -225,16 +231,13 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
       <div class="cb mapwrap">
         <div id="map"></div>
         <div class="aside">
-          <div class="blk"><h3>Score</h3><div class="lg">
+          <div class="blk"><h3>Heat score</h3><div class="lg">
             <span><i style="background:var(--hot)"></i>Hot 70+</span><span><i style="background:var(--h)"></i>Warm 40 to 69</span>
             <span><i style="background:var(--w)"></i>Watch 20 to 39</span><span><i style="background:var(--q)"></i>Quiet</span>
-            <span><i class="weak"></i>Striped: short spike or fading</span></div></div>
-          <div class="blk"><h3>Staying power</h3><div class="lg">
-            <span class="dur d-Sustained"><i></i>Sustained<span class="dd">6+ of last 10 days</span></span>
-            <span class="dur d-Building"><i></i>Building<span class="dd">3 to 5 days</span></span>
-            <span class="dur d-Spike"><i></i>Spike<span class="dd">1 to 2 days</span></span>
-            <span class="dur d-Fading"><i></i>Fading<span class="dd">nothing in 4+ days</span></span></div></div>
-          <div class="blk"><p>One day blips count for about a third. Only Sustained markets get a messaging shift.</p></div>
+            <span><i class="go"></i>Launch or extend now</span>
+            <span><i class="weak"></i>Striped: hold or wind down</span></div></div>
+          <div class="blk"><h3>How a call is made</h3><p>A <b>trigger</b> is a jump well above the market's normal, picked up by 4+ outlets (3 if someone was killed, stabbed or shot). It opens a 14 day buying window. Repeat incidents keep it open, an arrest shortens it, a suspect at large extends it.</p></div>
+          <div class="blk"><h3>Purchase power</h3><p>Median household income vs the US. Under 85% holds, 85 to 110% runs with top 50% income targeting, 110%+ runs as is. Cities use their metro.</p></div>
         </div>
       </div>
     </section>
@@ -260,7 +263,8 @@ h1{font-size:16px;font-weight:650;margin:0;letter-spacing:-.01em}
 const GRID={AK:[0,0],ME:[10,0],VT:[9,1],NH:[10,1],WA:[0,2],ID:[1,2],MT:[2,2],ND:[3,2],MN:[4,2],IL:[5,2],WI:[6,2],MI:[7,2],NY:[8,2],RI:[9,2],MA:[10,2],
 OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IN:[5,3],OH:[6,3],PA:[7,3],NJ:[8,3],CT:[9,3],CA:[0,4],UT:[1,4],CO:[2,4],NE:[3,4],MO:[4,4],KY:[5,4],WV:[6,4],VA:[7,4],MD:[8,4],DE:[9,4],
 AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],GA:[7,6],HI:[0,7],TX:[3,7],FL:[8,7]};
-const SUSTAIN=10;
+const WINDOW=14;
+const TIER_NAME={1:'High fit',2:'Medium fit',3:'Low fit'};
 const S={level:'state',types:new Set(),sel:null,meta:null,markets:[]};
 let selSeq=0;
 const $=id=>document.getElementById(id);
@@ -273,32 +277,39 @@ const j=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);retu
 const fmtDelta=d=>`<span class="delta ${d>0?'up':d<0?'down':'flat'}">${d>0?'▲ +'+d:d<0?'▼ '+d:'No change'}</span>`;
 const ago=t=>{const m=Math.round((Date.now()-new Date(t))/60000);if(m<60)return m<=1?'just now':m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago'};
 const marketName=k=>S.level==='state'&&S.meta.states[k]?S.meta.states[k]:k;
-const weak=m=>m&&(m.durability==='Spike'||m.durability==='Fading');
-const actionable=m=>m.score>=40&&m.durability==='Sustained';
-const durTag=m=>{const d=m.durability||'None';return `<span class="dur d-${d}"><i></i>${d==='None'?'No coverage':d}${m.activeDays!=null&&d!=='None'?`<span class="dd num">${m.activeDays}/${SUSTAIN}d</span>`:''}</span>`};
+const go=m=>m&&(m.call==='Launch'||m.call==='Extend');
+const weak=m=>m&&(m.call==='Hold'||m.call==='Wind down');
+const callTag=m=>`<span class="call c-${esc((m.call||'Hold').split(' ')[0])}">${esc(m.call||'Hold')}</span>`;
+const money=v=>'$'+Math.round(v/1000)+'k';
+const incTag=a=>a?`<span class="inc i-${a.tier}" title="${esc(a.source)}">${money(a.income)} <span class="dd">${Math.round(a.ratio*100)}%</span></span>`:'<span class="dd">n/a</span>';
+const winTag=m=>{const w=m.win;if(!w||w.lastTrigger==null)return '<span class="dd">No trigger</span>';return `<span class="num">${w.daysLeft}d left</span> <span class="dd">· ${w.incidents>1?w.incidents+' incidents':w.lastTrigger===0?'today':w.lastTrigger+'d ago'}</span>`};
 
 async function init(){
   S.meta=await j('/api/meta');
   const tiers={};
-  for(const [k,t] of Object.entries(S.meta.types))(tiers[t.tier]||(tiers[t.tier]=[])).push([k,t]);
-  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· showing all</span></span><button class="linkbtn" id="clearT" hidden>Clear filters</button></div>`+Object.entries(tiers).map(([n,a])=>`<div class="frow"><span class="flabel">Tier ${n}</span>`+a.map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
+  for(const [k,t] of Object.entries(S.meta.types))(tiers[t.context?'ctx':t.tier]||(tiers[t.context?'ctx':t.tier]=[])).push([k,t]);
+  const rows=Object.keys(tiers).filter(n=>n!=='ctx').sort().map(n=>`<div class="frow"><span class="flabel">${TIER_NAME[n]||'Tier '+n}</span>`+tiers[n].map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
+  const ctx=tiers.ctx?`<div class="frow"><span class="flabel">Context</span>`+tiers.ctx.map(([,t])=>`<span class="chip ctx" title="Tracked for brand safety, never scored">${esc(t.label)}</span>`).join('')+`<span class="dd">Not scored. Shown for brand safety only.</span></div>`:'';
+  $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· showing all</span></span><button class="linkbtn" id="clearT" hidden>Clear filters</button></div>`+rows+ctx;
   $('chips').onclick=e=>{
     if(e.target.id==='clearT'){S.types.clear();$('chips').querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'))}
-    else{const b=e.target.closest('.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
+    else{const b=e.target.closest('button.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
     $('clearT').hidden=!S.types.size;$('fcount').textContent=S.types.size?`· ${S.types.size} selected`:'· showing all';refresh();
   };
   $('levelSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.l===S.level)return;S.level=b.dataset.l;closeDrawer();[...$('levelSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mapCard').style.display=S.level==='state'?'':'none';refresh()};
   $('dClose').onclick=closeDrawer;$('scrim').onclick=closeDrawer;
   addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
-  renderStatus(S.meta.status);
+  renderStatus(S.meta);
   await refresh();
-  setInterval(async()=>{try{S.meta.status=(await j('/api/meta')).status;renderStatus(S.meta.status)}catch{}refresh()},5*60e3);
+  setInterval(async()=>{try{const m=await j('/api/meta');S.meta.status=m.status;S.meta.income=m.income;renderStatus(S.meta)}catch{}refresh()},5*60e3);
 }
 
-function renderStatus(st){
+function renderStatus(meta){
+  const st=meta.status;
   const live=st.lastLive?`<span class="live"><i class="dot"></i>Last pull ${esc(new Date(st.lastLive).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span>`:`<span class="live"><i class="dot idle"></i>Waiting for first pull</span>`;
   const bf=st.pct<100?`<span class="bf">History ${st.pct}%${st.running?' (running)':''}<span class="bar"><i style="width:${st.pct}%"></i></span></span>`:`<span class="bf">History complete (90 days)</span>`;
-  $('status').innerHTML=live+bf;
+  const inc=meta.income&&!meta.income.loaded?`<span class="bf" style="color:var(--accent)">Income data not loaded</span>`:'';
+  $('status').innerHTML=live+bf+inc;
 }
 
 async function refresh(){
@@ -310,27 +321,27 @@ async function refresh(){
 }
 
 function renderKpis(){
-  const c={Hot:0,Warm:0,Watch:0};S.markets.forEach(m=>{if(c[m.level]!=null)c[m.level]++});
-  const act=S.markets.filter(actionable);
-  const top=act[0];
+  const n=c=>S.markets.filter(m=>m.call===c).length;
+  const lowHeld=S.markets.filter(m=>m.call==='Hold'&&m.win&&m.win.lastTrigger!=null&&m.afford&&m.afford.tier==='Low').length;
+  const top=S.markets.find(go);
   const unit=S.level==='state'?'states':'cities';
   const k=(lab,col,v,d,cls='')=>`<div class="kpi ${cls}"><div class="k">${col?`<i style="background:${col}"></i>`:''}${lab}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`;
   $('kpis').innerHTML=
-    k('Actionable','var(--good)',act.length,`Warm+ and sustained ${unit}`,'hl')+
-    k('Hot','var(--hot)',c.Hot,`${unit} at 70+`)+
-    k('Warm','var(--h)',c.Warm,`${unit} at 40 to 69`)+
-    k('Watch','var(--w)',c.Watch,`${unit} at 20 to 39`)+
-    `<div class="kpi"><div class="k">Top sustained market</div><div class="v sm" title="${esc(top?marketName(top.key):'')}">${esc(top?marketName(top.key):'None yet')}</div><div class="d">${top?`Score <b class="num">${top.score}</b> · ${top.activeDays} of last ${SUSTAIN} days`:'Nothing has held a week yet'}</div></div>`;
+    k('Launch','var(--good)',n('Launch'),`${unit} with a fresh trigger`,'hl')+
+    k('Extend','var(--good)',n('Extend'),`${unit} with repeat incidents`)+
+    k('Watch','var(--w)',n('Watch'),'small triggers, prep only')+
+    k('Held for income','#c4c3bc',lowHeld,'triggered but low purchase power')+
+    `<div class="kpi"><div class="k">Top opportunity</div><div class="v sm" title="${esc(top?marketName(top.key):'')}">${esc(top?marketName(top.key):'None right now')}</div><div class="d">${top?`${esc(top.call)} · score <b class="num">${top.score}</b> · ${top.win.daysLeft}d left`:'No affordable market has a fresh trigger'}</div></div>`;
 }
 
 function renderMap(){
   if(S.level!=='state')return;
   const m=Object.fromEntries(S.markets.map(x=>[x.key,x]));
   $('map').innerHTML=Object.entries(GRID).map(([st,[c,r]])=>{const x=m[st];const s=x?x.score:0;
-    return `<button class="tile t-${lvl(s)} ${s>=20&&weak(x)?'weak':''} ${S.sel===st?'sel':''}" data-k="${st}" style="grid-column:${c+1};grid-row:${r+1};background-color:${fill(s)}" aria-label="${esc(S.meta.states[st]||st)} score ${s}">${st}${x?`<small class="num">${s}</small>`:''}</button>`}).join('');
+    return `<button class="tile t-${lvl(s)} ${s>=20&&weak(x)?'weak':''} ${S.sel===st?'sel':''}" data-k="${st}" style="grid-column:${c+1};grid-row:${r+1};background-color:${fill(s)}" aria-label="${esc(S.meta.states[st]||st)} score ${s}${x?', '+esc(x.call):''}">${go(x)?'<i class="go"></i>':''}${st}${x?`<small class="num">${s}</small>`:''}</button>`}).join('');
   const tip=$('mtip');
   const show=e=>{const t=e.target.closest('.tile');if(!t){tip.style.opacity=0;return}const x=m[t.dataset.k];const s=x?x.score:0;
-    tip.innerHTML=`<div><b class="num">${s}</b> ${esc(S.meta.states[t.dataset.k]||t.dataset.k)}</div><div class="mt">${esc(lvl(s))}${x?` · ${esc(x.durability)} ${x.activeDays}/${SUSTAIN}d`:''}${x&&x.topTypes.length?' · '+esc(tlabel(x.topTypes[0])):''}</div>`;
+    tip.innerHTML=`<div><b class="num">${s}</b> ${esc(S.meta.states[t.dataset.k]||t.dataset.k)}</div><div class="mt">${x?`${esc(x.call)}${x.win&&x.win.lastTrigger!=null?` · ${x.win.daysLeft}d left`:''}${x.afford?` · income ${Math.round(x.afford.ratio*100)}% of US`:''}`:'Quiet'}</div>`;
     const r=t.getBoundingClientRect();tip.style.left=Math.max(8,Math.min(innerWidth-270,r.left+r.width/2-40))+'px';tip.style.top=(r.top-54)+'px';tip.style.opacity=1};
   $('map').onpointerover=show;$('map').onfocusin=show;
   $('map').onpointerleave=()=>tip.style.opacity=0;$('map').onfocusout=()=>tip.style.opacity=0;
@@ -338,14 +349,15 @@ function renderMap(){
 }
 
 function renderRank(){
-  $('rankSub').textContent=S.markets.length?`Top ${Math.min(S.markets.length,30)} of ${S.markets.length} scored · click a row for details`:'';
+  $('rankSub').textContent=S.markets.length?`Top ${Math.min(S.markets.length,30)} of ${S.markets.length} · sorted by call, then heat · click a row for details`:'';
   if(!S.markets.length){$('rank').innerHTML='<div class="empty">No scored markets yet. The first pull runs shortly after deploy and history fills in over the first hour.</div>';return}
-  $('rank').innerHTML=`<table class="rank"><thead><tr><th>#</th><th>Market</th><th>Score</th><th>7d</th><th>Staying power</th><th>Drivers</th><th>Recommendation</th><th></th></tr></thead><tbody>`+S.markets.slice(0,30).map((x,i)=>
+  $('rank').innerHTML=`<table class="rank"><thead><tr><th>#</th><th>Market</th><th>Call</th><th>Heat</th><th>Window</th><th>Income</th><th>Drivers</th><th>Recommendation</th><th></th></tr></thead><tbody>`+S.markets.slice(0,30).map((x,i)=>
     `<tr class="row ${S.sel===x.key?'sel':''} ${weak(x)?'dim':''}" data-k="${esc(x.key)}" tabindex="0"><td class="rk num">${i+1}</td>
      <td class="mk">${esc(marketName(x.key))}</td>
+     <td>${callTag(x)}</td>
      <td><div class="sc"><span class="sbar"><i style="width:${x.score}%;background:${fill(x.score)}"></i></span><b class="num">${x.score}</b></div></td>
-     <td class="num">${x.delta>0?`<span class="delta up">+${x.delta}</span>`:x.delta<0?`<span class="delta down">${x.delta}</span>`:'<span class="flat">0</span>'}</td>
-     <td>${durTag(x)}</td>
+     <td style="white-space:nowrap">${winTag(x)}</td>
+     <td>${incTag(x.afford)}</td>
      <td class="drivers">${x.topTypes.slice(0,2).map(t=>esc(tlabel(t))).join(', ')}</td>
      <td class="rec2">${esc(x.action)}</td><td class="chev">›</td></tr>`).join('')+`</tbody></table>`;
   $('rank').onclick=e=>{const t=e.target.closest('tr.row');if(t)openMarket(t.dataset.k)};
@@ -358,10 +370,10 @@ function closeDrawer(){if(!S.sel&&!$('drawer').classList.contains('open'))return
 
 async function renderDrawer(fresh){
   const seq=++selSeq;const key=S.sel;if(!key)return;
-  const m=S.markets.find(x=>x.key===key)||{key,score:0,delta:0,level:'Quiet',durability:'None',activeDays:0,topTypes:[],byType:{},daysByType:{},action:'No change',expire:''};
+  const m=S.markets.find(x=>x.key===key)||{key,score:0,delta:0,level:'Quiet',call:'Hold',topTypes:[],byType:{},win:null,afford:null,action:'No change',expire:''};
   $('dKind').textContent=S.level==='state'?'State':'City';
   $('dName').textContent=marketName(key);
-  $('dBadges').innerHTML=`<span class="badge b-${m.level}">${esc(m.level)}</span>${durTag(m)}${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span>`;
+  $('dBadges').innerHTML=`${callTag(m)}<span class="badge b-${m.level}">${esc(m.level)}</span>${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span>`;
   if(fresh)$('dBody').innerHTML=bodyHtml(m,null,null);
   let ev=null,h=null;
   try{[ev,h]=await Promise.all([j(`/api/events?market=${encodeURIComponent(key)}&days=14${tq()}`),j(`/api/history?market=${encodeURIComponent(key)}&level=${S.level}&days=90${tq()}`)])}catch(e){ev=ev||[];h=h||[]}
@@ -375,22 +387,27 @@ async function renderDrawer(fresh){
 function bodyHtml(m,h,ev){
   const by=Object.entries(m.byType||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   const mx=Math.max(...by.map(([,v])=>v),0.01);
-  const recCls=actionable(m)?'ok':(m.durability==='Sustained'||m.durability==='Building')?'':'hold';
-  const daysBar=n=>`<span class="days" title="${n} of last ${SUSTAIN} days with coverage">${Array.from({length:SUSTAIN},(_,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}</span>`;
+  const w=m.win,a=m.afford;
+  const recCls=go(m)?'ok':weak(m)?'hold':'';
+  const ctx=Object.entries((w&&w.context)||{}).filter(([,v])=>v>0);
+  const ctxN=ctx.reduce((s,[,v])=>s+v,0);
+  const winV=w&&w.lastTrigger!=null?`${w.daysLeft}<small> days left</small>`:'None';
+  const winD=w&&w.lastTrigger!=null?`Trigger ${w.lastTrigger===0?'today':w.lastTrigger+'d ago'}${w.severe?' · severe':''}${w.incidents>1?` · ${w.incidents} incidents`:''}${w.note==='unresolved'?' · at large':w.note==='resolved'?' · arrest made':''}`:'No trigger in 3 weeks';
   return `
     <div class="dstats">
-      <div class="st"><div class="k">Score</div><div class="v num">${m.score}<small> / 100</small></div></div>
-      <div class="st"><div class="k">Days with coverage</div><div class="v num">${m.activeDays??0}<small> of last ${SUSTAIN}</small></div></div>
-      <div class="st"><div class="k">Last covered</div><div class="v num">${m.lastAge==null?'None':m.lastAge===0?'Today':m.lastAge+'<small>d ago</small>'}</div></div>
+      <div class="st"><div class="k">Heat</div><div class="v num">${m.score}<small> / 100</small></div></div>
+      <div class="st"><div class="k">Buying window</div><div class="v num">${winV}</div><div class="dd">${esc(winD)}</div></div>
+      <div class="st"><div class="k">Household income</div><div class="v num">${a?money(a.income):'n/a'}${a?`<small> ${Math.round(a.ratio*100)}% of US</small>`:''}</div><div class="dd i-${a?a.tier:'Mid'}">${a?esc(a.tier+' · '+a.source):'Not loaded'}</div></div>
     </div>
-    <div class="rec ${recCls}"><div class="rl">${actionable(m)?'Act on this':recCls==='hold'?'Hold':'Recommendation'}</div><div class="rt">${esc(m.action)}</div>${m.expire?`<div class="rx">${esc(m.expire)}</div>`:''}</div>
+    <div class="rec ${recCls}"><div class="rl">${esc(m.call||'Hold')}</div><div class="rt">${esc(m.action)}</div>${m.expire?`<div class="rx">${esc(m.expire)}</div>`:''}</div>
     <div class="guard"><span>Confirm with Google Trends or search terms before shifting budget</span><span>Never reference the event in creative</span><span>Add event terms as negatives</span></div>
-    ${by.length?`<div class="sect">Score drivers<span>Weight · days covered</span></div><div class="drv">${by.map(([t,v])=>`<div class="dl" title="${esc(tlabel(t))}">${esc(tlabel(t))}<em>T${S.meta.types[t]?.tier??''}</em></div><div class="db"><i style="width:${(v/mx*100).toFixed(1)}%"></i></div>${daysBar((m.daysByType||{})[t]||0)}`).join('')}</div>`:''}
-    <div class="sect">Score history<span>90 days</span></div>
+    ${ctxN>=5?`<div class="safety"><b>Brand safety:</b> ${ctx.map(([t,v])=>`${esc(tlabel(t))} (${v} outlets)`).join(', ')} in the news here this week. Not scored. Keep creative neutral and add these terms as negatives.</div>`:''}
+    ${by.length?`<div class="sect">Heat drivers<span>Buyer-fit weighted</span></div><div class="drv">${by.map(([t,v])=>`<div class="dl" title="${esc(tlabel(t))}">${esc(tlabel(t))}<em>${esc(TIER_NAME[S.meta.types[t]?.tier]||'')}</em></div><div class="db"><i style="width:${(v/mx*100).toFixed(1)}%"></i></div><div class="dv num">${v.toFixed(1)}</div>`).join('')}</div>`:''}
+    <div class="sect">Heat history<span>90 days</span></div>
     <div class="chart" id="hist">${h?'':'<div class="empty">Loading history</div>'}</div>
     <div class="sect">Event feed<span>Last 14 days</span></div>
     <div id="feed">${ev==null?'<div class="empty">Loading events</div>':ev.length?ev.map(e=>`<div class="ev"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
-      <div class="meta"><span class="pill">${esc(tlabel(e.type))}</span>${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
+      <div class="meta"><span class="pill ${S.meta.types[e.type]?.context?'ctx':''}">${esc(tlabel(e.type))}${S.meta.types[e.type]?.context?' · not scored':''}</span>${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
       <button class="x" data-id="${e.id}" title="Not relevant. Removes it from scoring">Dismiss</button></div>`).join(''):'<div class="empty">No events in the last 14 days.</div>'}</div>`;
 }
 

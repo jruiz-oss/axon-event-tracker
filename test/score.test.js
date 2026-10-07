@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { geoTag } from '../lib/geo.js';
-import { scoreMarket, actionFor } from '../lib/score.js';
+import { scoreMarket, actionFor, windowFor } from '../lib/score.js';
+import { affordFor } from '../lib/income.js';
 import { classify } from '../lib/types.js';
 import { parseGkg } from '../lib/ingest.js';
 
@@ -23,24 +24,57 @@ for (const [t, st, city] of cases) {
 assert.equal(geoTag('Georgia and Russia sign deal'), null);
 assert.equal(geoTag('Nationwide protest planned'), null);
 
-// scoring: a fresh spike beats a flat baseline
+// scoring: a fresh spike beats a flat baseline (spikes matter)
 const day = n => new Date(Date.now() - n * 86400e3).toISOString().slice(0, 10);
-const flat = []; for (let n = 15; n < 70; n++) flat.push({ d: day(n), type: 'mass_casualty', domains: 3 });
-const spike = flat.concat([{ d: day(0), type: 'mass_casualty', domains: 40 }, { d: day(1), type: 'mass_casualty', domains: 25 }]);
-assert.ok(scoreMarket(spike).score > scoreMarket(flat).score + 15, 'spike should outscore flat');
-// persistence: the same total coverage spread over 8 days beats a 2 day burst
-const steady = flat.concat([0, 1, 2, 3, 4, 5, 6, 7].map(n => ({ d: day(n), type: 'mass_casualty', domains: 8 })));
-assert.ok(scoreMarket(steady).score > scoreMarket(spike).score, 'sustained coverage beats a short burst');
-assert.equal(scoreMarket(steady).durability, 'Sustained');
-assert.equal(scoreMarket(spike).durability, 'Spike');
-assert.equal(scoreMarket(flat.concat([{ d: day(6), type: 'mass_casualty', domains: 30 }])).durability, 'Fading');
-assert.match(actionFor(80, ['carjacking'], [], 'Spike', 1).action, /Don't shift/);
-const old = flat.concat([{ d: day(13), type: 'mass_casualty', domains: 40 }]);
+const flat = []; for (let n = 15; n < 70; n++) flat.push({ d: day(n), type: 'home_invasion', domains: 2, n: 2 });
+const spike = flat.concat([{ d: day(0), type: 'home_invasion', domains: 12, n: 15 }, { d: day(1), type: 'home_invasion', domains: 8, n: 9 }]);
+assert.ok(scoreMarket(spike).score > scoreMarket(flat).score + 30, 'spike should outscore flat');
+const old = flat.concat([{ d: day(13), type: 'home_invasion', domains: 12, n: 15 }]);
 assert.ok(scoreMarket(spike).score > scoreMarket(old).score, 'recent beats old');
-assert.equal(actionFor(80).level, 'Hot');
-assert.ok(!/%|bid/i.test(actionFor(80, ['carjacking'], ['Houston']).action), 'no bid language');
-assert.match(actionFor(80, ['carjacking','home_invasion'], ['Houston','Dallas']).action, /Houston and Dallas/);
+
+// context types (ICE, unrest) never score
+assert.equal(scoreMarket([{ d: day(0), type: 'ice_enforcement', domains: 50, n: 50 }]).score, 0);
+
+// severity: same outlets, a murder outweighs a minor incident
+const ev = (sev, minor) => [{ d: day(0), type: 'home_invasion', domains: 6, n: 6, severe: sev, minor }];
+assert.ok(scoreMarket(ev(4, 0)).score > scoreMarket(ev(0, 0)).score && scoreMarket(ev(0, 0)).score > scoreMarket(ev(0, 5)).score, 'severity orders scores');
+
+// triggers need breadth: one outlet is not a trigger, several outlets are; severe incidents need one fewer
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 1, n: 1 }]).lastTrigger, null, 'single outlet is not a trigger');
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 5, n: 5 }]).lastTrigger, 0);
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 3, n: 3 }]).lastTrigger, null);
+assert.equal(windowFor([{ d: day(0), type: 'stalking_abduction', domains: 3, n: 3, severe: 2 }]).lastTrigger, 0, 'severe needs one fewer outlet');
+
+// window: 14 days from the last trigger, repeats counted, resolved shortens it, unresolved extends it
+const w1 = windowFor([{ d: day(3), type: 'carjacking', domains: 6, n: 6 }]);
+assert.equal(w1.daysLeft, 11);
+const w2 = windowFor([{ d: day(9), type: 'carjacking', domains: 6, n: 6 }, { d: day(2), type: 'carjacking', domains: 6, n: 6 }]);
+assert.equal(w2.incidents, 2); assert.equal(w2.daysLeft, 12);
+assert.equal(windowFor([{ d: day(4), type: 'carjacking', domains: 6, n: 6 }, { d: day(1), type: 'carjacking', domains: 1, n: 2, resolved: 2 }]).daysLeft, 3, 'arrest shortens');
+assert.equal(windowFor([{ d: day(4), type: 'carjacking', domains: 6, n: 6 }, { d: day(1), type: 'carjacking', domains: 1, n: 2, ongoing: 1 }]).daysLeft, 14, 'at large extends');
+
+// calls
+const win = (daysLeft, incidents = 1) => ({ lastTrigger: 14 - daysLeft, daysLeft, incidents, note: '', context: {} });
+assert.equal(actionFor(80, ['carjacking'], [], win(12)).call, 'Launch');
+assert.equal(actionFor(80, ['carjacking'], [], win(12, 2)).call, 'Extend');
+assert.equal(actionFor(80, ['carjacking'], [], win(3)).call, 'Wind down');
+assert.equal(actionFor(30, ['carjacking'], [], win(12)).call, 'Watch');
+assert.equal(actionFor(80, ['carjacking'], [], null).call, 'Hold');
+assert.equal(actionFor(80, ['carjacking'], [], win(12), { tier: 'Low', ratio: 0.7 }).call, 'Hold', 'low income holds');
+assert.match(actionFor(80, ['carjacking'], [], win(12), { tier: 'Mid', ratio: 0.95 }).action, /top 50% household income/);
+assert.ok(!/%|bid/i.test(actionFor(80, ['carjacking'], ['Houston'], win(12)).action), 'no bid language');
+assert.match(actionFor(80, ['carjacking', 'home_invasion'], ['Houston', 'Dallas'], win(12)).action, /Houston and Dallas/);
 assert.equal(actionFor(5).level, 'Quiet');
+
+// income lookup: cities use their metro, states their own median
+const inc = { us: 78000, states: { TX: 76000, MS: 54000, MA: 99000 }, metros: [
+  { name: 'Houston-Pasadena-The Woodlands, TX', cities: ['Houston', 'Pasadena', 'The Woodlands'], states: ['TX'], income: 80000 },
+  { name: 'New York-Newark-Jersey City, NY-NJ', cities: ['New York', 'Newark', 'Jersey City'], states: ['NY', 'NJ'], income: 97000 }] };
+assert.equal(affordFor('MS', inc).tier, 'Low');
+assert.equal(affordFor('MA', inc).tier, 'High');
+assert.equal(affordFor('Houston, TX', inc).income, 80000);
+assert.equal(affordFor('Brooklyn, NY', inc).income, 97000, 'borough maps to NY metro');
+assert.equal(affordFor('El Paso, TX', inc).source, 'TX statewide (no metro match)');
 
 // headline classifier
 assert.deepEqual(classify('Riot Games announces new champion'), []);

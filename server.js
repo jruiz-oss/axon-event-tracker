@@ -2,7 +2,8 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool, migrate } from './lib/db.js';
-import { TYPES } from './lib/types.js';
+import { TYPES, ONGOING_RX, RESOLVED_RX, SEVERE_RX, MINOR_RX } from './lib/types.js';
+import { loadIncome, affordFor, incomeStatus } from './lib/income.js';
 import { STATES } from './lib/geo.js';
 import { rankMarkets, scoreMarket, dayKey, actionFor } from './lib/score.js';
 import { liveIngest, backfill, backfillStatus, probe } from './lib/ingest.js';
@@ -24,16 +25,19 @@ app.use(express.json());
 app.use(express.static(path.join(__dir, 'public')));
 app.get('/healthz', (_q, r) => r.send('ok'));
 
-async function loadGroups(level, typeFilter, days = 75, state = null) {
-  const sql = level === 'city'
-    ? `SELECT to_char(seen_at AT TIME ZONE 'UTC','YYYY-MM-DD') d, (city || ', ' || state) AS mk, type, count(DISTINCT COALESCE(domain,url))::int domains
-       FROM articles WHERE NOT dismissed AND city IS NOT NULL AND seen_at > now() - ($1 || ' days')::interval GROUP BY 1,2,3`
-    : `SELECT to_char(seen_at AT TIME ZONE 'UTC','YYYY-MM-DD') d, state AS mk, type, count(DISTINCT COALESCE(domain,url))::int domains
-       FROM articles WHERE NOT dismissed AND seen_at > now() - ($1 || ' days')::interval GROUP BY 1,2,3`;
-  const { rows } = await pool.query(sql, [String(days)]);
+// Daily rollup per market and type: distinct outlets, plus headline cue counts (severity, unresolved, resolved).
+async function loadGroups(level, typeFilter, days = 75) {
+  const mk = level === 'city' ? `(city || ', ' || state)` : 'state';
+  const sql = `SELECT to_char(seen_at AT TIME ZONE 'UTC','YYYY-MM-DD') d, ${mk} AS mk, type,
+      count(DISTINCT COALESCE(domain,url))::int domains, count(*)::int n,
+      count(*) FILTER (WHERE title ~* $2)::int severe, count(*) FILTER (WHERE title ~* $3)::int minor,
+      count(*) FILTER (WHERE title ~* $4)::int ongoing, count(*) FILTER (WHERE title ~* $5)::int resolved
+    FROM articles WHERE NOT dismissed ${level === 'city' ? 'AND city IS NOT NULL' : ''} AND seen_at > now() - ($1 || ' days')::interval GROUP BY 1,2,3`;
+  const { rows } = await pool.query(sql, [String(days), SEVERE_RX, MINOR_RX, ONGOING_RX, RESOLVED_RX]);
   const groups = new Map();
   for (const r of rows) {
-    if (typeFilter && !typeFilter.has(r.type)) continue;
+    // context types (ICE, unrest) always ride along: they're never scored but feed the brand-safety note
+    if (typeFilter && !typeFilter.has(r.type) && !TYPES[r.type]?.context) continue;
     if (!groups.has(r.mk)) groups.set(r.mk, []);
     groups.get(r.mk).push(r);
   }
@@ -42,20 +46,21 @@ async function loadGroups(level, typeFilter, days = 75, state = null) {
 const parseTypes = q => (q ? new Set(String(q).split(',').filter(t => TYPES[t])) : null);
 
 app.get('/api/meta', async (_q, res) => {
-  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS) });
+  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight, context: !!v.context }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS), income: incomeStatus() });
 });
 
 app.get('/api/markets', async (req, res) => {
   try {
     const level = req.query.level === 'city' ? 'city' : 'state';
     const types = parseTypes(req.query.types);
-    const ranked = rankMarkets(await loadGroups(level, types)).slice(0, level === 'city' ? 50 : 60);
+    await loadIncome();
+    const ranked = rankMarkets(await loadGroups(level, types), new Date(), affordFor).slice(0, level === 'city' ? 50 : 60);
     if (level === 'state') {
-      // Attach the hottest cities inside each state and rebuild the recommendation with them
-      const cityRanked = rankMarkets(await loadGroups('city', types));
+      // Attach the hottest affordable cities inside each state and rebuild the recommendation with them
+      const cityRanked = rankMarkets(await loadGroups('city', types), new Date(), affordFor).sort((a, b) => b.score - a.score);
       for (const m of ranked) {
-        m.cities = cityRanked.filter(c => c.key.endsWith(', ' + m.key) && c.score >= 20).slice(0, 4).map(c => c.key.split(', ')[0]);
-        Object.assign(m, actionFor(m.score, m.topTypes, m.cities, m.durability, m.activeDays));
+        m.cities = cityRanked.filter(c => c.key.endsWith(', ' + m.key) && c.score >= 20 && c.afford?.tier !== 'Low').slice(0, 4).map(c => c.key.split(', ')[0]);
+        Object.assign(m, actionFor(m.score, m.topTypes, m.cities, m.win, m.afford));
       }
     }
     res.json(ranked);
@@ -110,6 +115,7 @@ app.listen(port, () => console.log('listening on', port));
 if (process.env.DISABLE_JOBS !== '1') {
   // Hourly catch-up (36h lookback, so yesterday is always covered), plus a resumable history backfill.
   setTimeout(probe, 5e3);
+  setTimeout(loadIncome, 8e3);
   setTimeout(() => liveIngest(), 15e3);
   setInterval(() => liveIngest(), 3600e3);
   setTimeout(() => backfill(BACKFILL_DAYS), 60e3);
