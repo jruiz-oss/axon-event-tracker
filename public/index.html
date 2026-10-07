@@ -42,10 +42,6 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
 
 /* Toolbar + filters */
 .wrap{max-width:1480px;margin:0 auto;padding:12px 20px 32px}
-.toolbar{display:flex;gap:10px 16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
-.seg{display:inline-flex;background:var(--line2);border-radius:9px;padding:3px}
-.seg button{border:0;background:none;padding:4px 12px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink2)}
-.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
 .filters{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:7px 12px;margin-bottom:10px;display:flex;flex-wrap:wrap;align-items:center;gap:5px 6px}
 .frow{display:contents}
 .flabel{font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;flex:none;margin:0 2px 0 10px}
@@ -109,37 +105,12 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
 .c-Hold{color:var(--mute);border-color:var(--line)}
 .dd{color:var(--mute);font-weight:400;font-size:12px}
 .i-High{color:var(--good)}.i-Mid{color:var(--ink2)}.i-Low{color:var(--accent)}
-.inc{font-size:12.5px;white-space:nowrap}
 .delta{font-size:12.5px;font-weight:600}
 .up{color:var(--up)}.down{color:var(--down)}.flat{color:var(--mute)}
 
-/* Ranked table */
-.tablewrap{overflow-x:auto;margin:0 -16px}
-.rank{width:100%;border-collapse:collapse;min-width:900px}
-.rank th{text-align:left;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-.rank th:first-child,.rank td:first-child{padding-left:16px}
-.rank td{padding:7px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
-.rank tr:last-child td{border-bottom:0}
-.rank tr.row{cursor:pointer}
-.rank tr.row:hover td{background:var(--hover)}
-.rank tr.row.sel td{background:#f3f2ed}
-.rank tr.row.sel td:first-child{box-shadow:inset 3px 0 0 var(--ink)}
-.rank tr.dim .mk,.rank tr.dim .rec2{color:var(--mute)}
-.rk{color:var(--mute);font-size:12px;width:34px}
-.mk{font-weight:600;white-space:nowrap}
-.drivers{color:var(--ink2);font-size:12px;max-width:260px}
-.rec2{font-size:12px;color:var(--ink2);max-width:420px}
-.sc{display:flex;align-items:center;gap:8px;width:130px}
-.sc .sbar{flex:1;height:6px;background:var(--line2);border-radius:99px;overflow:hidden}
-.sc .sbar i{display:block;height:100%;border-radius:99px}
-.sc b{width:26px;text-align:right;font-weight:600}
-.chev{color:#bdbcb5;width:28px;text-align:right;padding-right:18px!important}
 .empty{color:var(--mute);padding:20px 0;text-align:center;font-size:13px}
 .loading{opacity:.55;transition:opacity .15s}
 
-/* Inline detail panel (opens inside the map or the table, no popup) */
-.inl{background:var(--panel);border-radius:12px;padding:18px 20px 20px;margin:2px 0 6px;animation:inl .2s ease-out;cursor:default;text-align:left}
-@keyframes inl{from{opacity:0}to{opacity:1}}
 /* State details grow out of the clicked square and sit flat in the map's place */
 #mapArea{position:relative;transition:height var(--dur) var(--ease)}
 #map{transition:opacity .22s}
@@ -159,7 +130,6 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
 .dname{font-size:18px;font-weight:650;letter-spacing:-.015em;margin:0;line-height:1.25}
 .close{border:1px solid var(--line);background:var(--card);border-radius:8px;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;flex:none}
 .close:hover{background:var(--hover)}
-.rank tr.xrow td{padding:0 18px 14px;background:transparent!important;border-bottom:1px solid var(--line2)}
 .dstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .st{border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--card)}
 .st .k{font-size:11.5px;color:var(--mute)}
@@ -211,7 +181,7 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
   .hwrap,.wrap{padding-left:16px;padding-right:16px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   #map{gap:3px}.tile{font-size:9.5px;border-radius:5px;aspect-ratio:1}.tile small{display:none}.tile .go{top:2px;right:2px;width:5px;height:5px}
-  .inl,.xp{padding:14px}.pgrid{grid-template-columns:1fr;gap:8px}.pfeed{max-height:none}
+  .xp{padding:14px}.pgrid{grid-template-columns:1fr;gap:8px}.pfeed{max-height:none}
   .drv{grid-template-columns:minmax(0,1fr) 80px 36px}
   .dstats .v{font-size:18px}
 }
@@ -229,16 +199,12 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
 </header>
 
 <div class="wrap">
-  <div class="toolbar">
-    <div class="seg" id="levelSeg"><button data-l="state" class="on">States</button><button data-l="city">Cities</button></div>
-    <a class="btn" href="/api/export.csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export CSV</a>
-  </div>
   <div class="filters" id="chips"></div>
   <div class="kpis" id="kpis"></div>
 
   <div class="stack" id="main">
     <section class="card" id="mapCard">
-      <div class="ch"><h2>Market heat</h2><span class="sub">Click a state to open it</span></div>
+      <div class="ch"><h2>Market heat</h2><div style="display:flex;align-items:center;gap:14px"><span class="sub">Click a state to open it</span><a class="btn" href="/api/export.csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export CSV</a></div></div>
       <div class="cb">
         <div id="mapArea"><div id="map"></div></div>
         <div class="legend">
@@ -253,10 +219,6 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
       </div>
     </section>
 
-    <section class="card">
-      <div class="ch"><h2>Ranked markets</h2><span class="sub" id="rankSub"></span></div>
-      <div class="cb"><div class="tablewrap" id="rank"></div></div>
-    </section>
   </div>
 </div>
 
@@ -268,7 +230,7 @@ OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IN:[5,3],OH:[6,3],PA:[7,3],NJ:[8,3]
 AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],GA:[7,6],HI:[0,7],TX:[3,7],FL:[8,7]};
 const WINDOW=14;
 const TIER_NAME={1:'High fit',2:'Medium fit',3:'Low fit'};
-const S={level:'state',types:new Set(),sel:null,meta:null,markets:[],cache:null};
+const S={types:new Set(),sel:null,meta:null,markets:[],cache:null};
 let selSeq=0;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -279,13 +241,11 @@ const tlabel=t=>S.meta.types[t]?.label||t;
 const j=async u=>{const r=await fetch(u);if(!r.ok)throw new Error(r.status);return r.json()};
 const fmtDelta=d=>`<span class="delta ${d>0?'up':d<0?'down':'flat'}">${d>0?'▲ +'+d:d<0?'▼ '+d:'No change'}</span>`;
 const ago=t=>{const m=Math.round((Date.now()-new Date(t))/60000);if(m<60)return m<=1?'just now':m+'m ago';const h=Math.round(m/60);if(h<24)return h+'h ago';return Math.round(h/24)+'d ago'};
-const marketName=k=>S.level==='state'&&S.meta.states[k]?S.meta.states[k]:k;
+const marketName=k=>S.meta.states[k]||k;
 const go=m=>m&&(m.call==='Launch'||m.call==='Extend');
 const weak=m=>m&&(m.call==='Hold'||m.call==='Wind down');
 const callTag=m=>`<span class="call c-${esc((m.call||'Hold').split(' ')[0])}">${esc(m.call||'Hold')}</span>`;
 const money=v=>'$'+Math.round(v/1000)+'k';
-const incTag=a=>a?`<span class="inc i-${a.tier}" title="${esc(a.source)}">${money(a.income)} <span class="dd">${Math.round(a.ratio*100)}%</span></span>`:'<span class="dd">n/a</span>';
-const winTag=m=>{const w=m.win;if(!w||w.lastTrigger==null)return '<span class="dd">No trigger</span>';return `<span class="num">${w.daysLeft}d left</span> <span class="dd">· ${w.incidents>1?w.incidents+' incidents':w.lastTrigger===0?'today':w.lastTrigger+'d ago'}</span>`};
 
 async function init(){
   S.meta=await j('/api/meta');
@@ -298,8 +258,7 @@ async function init(){
     else{const b=e.target.closest('button.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
     $('clearT').hidden=!S.types.size;$('fcount').textContent=S.types.size?`· ${S.types.size} selected`:'· all';refresh();
   };
-  $('levelSeg').onclick=e=>{const b=e.target.closest('button');if(!b||b.dataset.l===S.level)return;S.level=b.dataset.l;resetState();S.sel=null;S.cache=null;[...$('levelSeg').children].forEach(x=>x.classList.toggle('on',x===b));$('mapCard').style.display=S.level==='state'?'':'none';refresh()};
-  addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sel)closeDetail()});
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sel)closeState()});
   renderStatus(S.meta);
   await refresh();
   setInterval(async()=>{try{const m=await j('/api/meta');S.meta.status=m.status;S.meta.income=m.income;renderStatus(S.meta)}catch{}refresh()},5*60e3);
@@ -315,9 +274,9 @@ function renderStatus(meta){
 
 async function refresh(){
   $('main').classList.add('loading');
-  try{S.markets=await j(`/api/markets?level=${S.level}${tq()}`)}catch(e){S.markets=[]}
+  try{S.markets=await j(`/api/markets?level=state${tq()}`)}catch(e){S.markets=[]}
   $('main').classList.remove('loading');
-  renderKpis();renderMap();renderRank();
+  renderKpis();renderMap();
   if(S.sel)loadDetail();
 }
 
@@ -325,7 +284,7 @@ function renderKpis(){
   const n=c=>S.markets.filter(m=>m.call===c).length;
   const lowHeld=S.markets.filter(m=>m.call==='Hold'&&m.win&&m.win.lastTrigger!=null&&m.afford&&m.afford.tier==='Low').length;
   const top=S.markets.find(go);
-  const unit=S.level==='state'?'states':'cities';
+  const unit='states';
   const k=(lab,col,v,d,cls='')=>`<div class="kpi ${cls}"><div class="k">${col?`<i style="background:${col}"></i>`:''}${lab}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`;
   $('kpis').innerHTML=
     k('Launch','var(--good)',n('Launch'),`${unit} with a fresh trigger`,'hl')+
@@ -336,7 +295,6 @@ function renderKpis(){
 }
 
 function renderMap(){
-  if(S.level!=='state')return;
   const m=Object.fromEntries(S.markets.map(x=>[x.key,x]));
   $('map').innerHTML=Object.entries(GRID).map(([st,[c,r]])=>{const x=m[st];const s=x?x.score:0;
     return `<button class="tile t-${lvl(s)} ${s>=20&&weak(x)?'weak':''} ${S.sel===st?'sel':''}" data-k="${st}" style="grid-column:${c+1};grid-row:${r+1};background-color:${fill(s)}" aria-label="${esc(S.meta.states[st]||st)} score ${s}${x?', '+esc(x.call):''}">${go(x)?'<i class="go"></i>':''}${st}${x?`<small class="num">${s}</small>`:''}</button>`}).join('');
@@ -349,34 +307,10 @@ function renderMap(){
   $('map').onclick=e=>{const t=e.target.closest('.tile');if(t){tip.style.opacity=0;openMarket(t.dataset.k)}};
 }
 
-function renderRank(){
-  $('rankSub').textContent=S.markets.length?`Top ${Math.min(S.markets.length,30)} of ${S.markets.length} · sorted by call, then heat · click a row for details`:'';
-  if(!S.markets.length){$('rank').innerHTML='<div class="empty">No scored markets yet. The first pull runs shortly after deploy and history fills in over the first hour.</div>';return}
-  $('rank').innerHTML=`<table class="rank"><thead><tr><th>#</th><th>Market</th><th>Call</th><th>Heat</th><th>Window</th><th>Income</th><th>Drivers</th><th>Recommendation</th><th></th></tr></thead><tbody>`+S.markets.slice(0,30).map((x,i)=>
-    `<tr class="row ${S.sel===x.key?'sel':''} ${weak(x)?'dim':''}" data-k="${esc(x.key)}" tabindex="0"><td class="rk num">${i+1}</td>
-     <td class="mk">${esc(marketName(x.key))}</td>
-     <td>${callTag(x)}</td>
-     <td><div class="sc"><span class="sbar"><i style="width:${x.score}%;background:${fill(x.score)}"></i></span><b class="num">${x.score}</b></div></td>
-     <td style="white-space:nowrap">${winTag(x)}</td>
-     <td>${incTag(x.afford)}</td>
-     <td class="drivers">${x.topTypes.slice(0,2).map(t=>esc(tlabel(t))).join(', ')}</td>
-     <td class="rec2">${esc(x.action)}</td><td class="chev">${S.sel===x.key?'⌄':'›'}</td></tr>`+(S.level==='city'&&S.sel===x.key?`<tr class="xrow"><td colspan="9"><div id="detail" class="inl"></div></td></tr>`:'')).join('')+`</tbody></table>`;
-  $('rank').onclick=e=>{const t=e.target.closest('tr.row');if(t)openMarket(t.dataset.k)};
-  $('rank').onkeydown=e=>{if(e.key==='Enter'){const t=e.target.closest('tr.row');if(t)openMarket(t.dataset.k)}};
-  if(S.level==='city'&&S.sel)paintDetail();
-}
-
-// Click a state: its square grows into the details view, flat in the map's place. Click X, Esc, or the state again to shrink back.
-// Cities have no map, so the row expands in place.
+// Click a state: its square grows into the details view, flat in the map's place. X or Esc shrinks it back.
 const DUR=matchMedia('(prefers-reduced-motion: reduce)').matches?0:450;
 let animating=false;
-function openMarket(k){
-  if(S.level==='state'){S.sel===k&&$('detail')?closeState():openState(k);return}
-  if(S.sel===k){closeDetail();return}
-  S.sel=k;S.cache=null;renderRank();loadDetail();
-  const el=$('detail');if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'nearest'}),30);
-}
-function closeDetail(){if(S.level==='state'){closeState();return}S.sel=null;S.cache=null;renderRank()}
+function openMarket(k){S.sel===k&&$('detail')?closeState():openState(k)}
 
 // clip-path that shows only the given tile's square, in the panel's own coordinates
 function tileClip(k,panelH){
@@ -391,8 +325,8 @@ function openState(k){
   if(animating)return;
   const area=$('mapArea');let p=$('detail');
   S.cache=null;
-  if(p){S.sel=k;renderMap();renderRank();paintDetail();loadDetail();return} // already open: swap in the new state
-  S.sel=k;renderRank();
+  if(p){S.sel=k;paintDetail();loadDetail();return} // already open: swap in the new state
+  S.sel=k;
   $('mapCard').scrollIntoView({behavior:DUR?'smooth':'auto',block:'start'});
   const mapH=$('map').offsetHeight;
   p=document.createElement('div');p.id='detail';p.className='xp';
@@ -412,7 +346,7 @@ function openState(k){
 
 function closeState(){
   const area=$('mapArea'),p=$('detail');
-  if(!p){S.sel=null;S.cache=null;renderMap();renderRank();return}
+  if(!p){S.sel=null;S.cache=null;renderMap();return}
   if(animating)return;
   const k=S.sel;animating=true;
   const h=p.offsetHeight;
@@ -423,9 +357,9 @@ function closeState(){
     p.classList.remove('in');p.style.clipPath=tileClip(k,h);p.style.backgroundColor=tileColor(k);
     area.style.height=mapH+'px';area.classList.remove('open');
   });
-  setTimeout(()=>{animating=false;resetState();S.sel=null;S.cache=null;renderMap();renderRank()},DUR+20);
+  setTimeout(()=>{animating=false;resetState();S.sel=null;S.cache=null;renderMap()},DUR+20);
 }
-// remove the panel without animating (level switch)
+// remove the panel without animating
 function resetState(){const area=$('mapArea'),p=$('detail');if(area&&p&&area.contains(p))p.remove();if(area){area.classList.remove('open','settled');area.style.height=''}}
 
 function selMarket(){const key=S.sel;return S.markets.find(x=>x.key===key)||{key,score:0,delta:0,level:'Quiet',call:'Hold',topTypes:[],byType:{},win:null,afford:null,action:'No change',expire:''}}
@@ -434,12 +368,12 @@ function selMarket(){const key=S.sel;return S.markets.find(x=>x.key===key)||{key
 function paintDetail(){
   const el=$('detail');if(!el||!S.sel)return;
   const m=selMarket();const c=S.cache&&S.cache.key===S.sel?S.cache:{h:null,ev:null};
-  el.innerHTML=`<div class="xin"><div class="ptop"><div><div class="sub">${S.level==='state'?'State':'City'}</div><h3 class="dname">${esc(marketName(m.key))}</h3>
+  el.innerHTML=`<div class="xin"><div class="ptop"><div><div class="sub">State${m.ledBy?` · driven by ${esc(m.ledBy)}`:''}</div><h3 class="dname">${esc(marketName(m.key))}</h3>
       <div class="pbadges">${callTag(m)}<span class="badge b-${m.level}">${esc(m.level)}</span>${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span></div></div>
     <button class="close" id="pClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
     ${bodyHtml(m,c.h,c.ev)}</div>`;
   el.onclick=e=>e.stopPropagation();
-  $('pClose').onclick=closeDetail;
+  $('pClose').onclick=closeState;
   if(c.h)renderHist(c.h);
   $('feed').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;b.disabled=true;
     await fetch(`/api/events/${b.dataset.id}/dismiss`,{method:'POST'});b.closest('.ev').remove();refresh()};
@@ -448,7 +382,7 @@ function paintDetail(){
 async function loadDetail(){
   const seq=++selSeq;const key=S.sel;if(!key)return;
   let ev=[],h=[];
-  try{[ev,h]=await Promise.all([j(`/api/events?market=${encodeURIComponent(key)}&days=14${tq()}`),j(`/api/history?market=${encodeURIComponent(key)}&level=${S.level}&days=90${tq()}`)])}catch(e){}
+  try{[ev,h]=await Promise.all([j(`/api/events?market=${encodeURIComponent(key)}&days=14${tq()}`),j(`/api/history?market=${encodeURIComponent(key)}&level=state&days=90${tq()}`)])}catch(e){}
   if(seq!==selSeq||S.sel!==key)return; // a newer selection won
   S.cache={key,h,ev};paintDetail();
 }
