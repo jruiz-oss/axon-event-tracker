@@ -5,7 +5,7 @@ import { pool, migrate } from './lib/db.js';
 import { TYPES, ONGOING_RX, RESOLVED_RX, SEVERE_RX, MINOR_RX, CLASSIFIER_VERSION } from './lib/types.js';
 import { loadIncome, affordFor, incomeStatus } from './lib/income.js';
 import { STATES } from './lib/geo.js';
-import { rankMarkets, scoreMarket, dayKey, actionFor, CALL_ORDER } from './lib/score.js';
+import { rankMarkets, scoreMarket, dayKey, actionFor, CALL_ORDER, NAT_MIN } from './lib/score.js';
 import { liveIngest, backfill, backfillStatus, probe, reprocessIfChanged, syncTrust } from './lib/ingest.js';
 
 const app = express();
@@ -29,7 +29,7 @@ app.get('/healthz', (_q, r) => r.send('ok'));
 async function loadGroups(level, typeFilter, days = 75) {
   const mk = level === 'city' ? `(city || ', ' || state)` : 'state';
   const sql = `SELECT to_char(seen_at AT TIME ZONE 'UTC','YYYY-MM-DD') d, ${mk} AS mk, type,
-      count(DISTINCT COALESCE(domain,url))::int domains, count(*)::int n,
+      count(DISTINCT COALESCE(domain,url))::int domains, count(DISTINCT domain) FILTER (WHERE national)::int national, count(*)::int n,
       count(*) FILTER (WHERE title ~* $2)::int severe, count(*) FILTER (WHERE title ~* $3)::int minor,
       count(*) FILTER (WHERE title ~* $4)::int ongoing, count(*) FILTER (WHERE title ~* $5)::int resolved
     FROM articles WHERE NOT dismissed AND trusted ${level === 'city' ? 'AND city IS NOT NULL' : ''} AND seen_at > now() - ($1 || ' days')::interval GROUP BY 1,2,3`;
@@ -81,16 +81,26 @@ app.get('/api/markets', async (req, res) => {
   } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
 });
 
+// Event feed: only stories from a state/type/day that cleared the national gate (or the day before, so a story that
+// broke late evening UTC keeps its follow-ups). Local crime that never went national stays out of the feed.
 app.get('/api/events', async (req, res) => {
-  const where = ['NOT dismissed', 'trusted', `seen_at > now() - ($1 || ' days')::interval`]; const args = [String(Math.min(+req.query.days || 14, 90))];
+  const where = ['NOT a.dismissed', 'a.trusted', `a.seen_at > now() - ($1 || ' days')::interval`]; const args = [String(Math.min(+req.query.days || 14, 90)), NAT_MIN];
   if (req.query.market) {
     const m = String(req.query.market);
-    if (m.includes(', ')) { const [c, s] = m.split(', '); args.push(c, s); where.push(`city = $${args.length - 1} AND state = $${args.length}`); }
-    else { args.push(m); where.push(`state = $${args.length}`); }
+    if (m.includes(', ')) { const [c, s] = m.split(', '); args.push(c, s); where.push(`a.city = $${args.length - 1} AND a.state = $${args.length}`); }
+    else { args.push(m); where.push(`a.state = $${args.length}`); }
   }
   const types = parseTypes(req.query.types);
-  if (types && types.size) { args.push([...types]); where.push(`type = ANY($${args.length})`); }
-  const { rows } = await pool.query(`SELECT id,title,url,domain,seen_at,type,state,city FROM articles WHERE ${where.join(' AND ')} ORDER BY seen_at DESC LIMIT 120`, args);
+  if (types && types.size) { args.push([...types]); where.push(`a.type = ANY($${args.length})`); }
+  const { rows } = await pool.query(`
+    WITH major AS (
+      SELECT state, type, (seen_at AT TIME ZONE 'UTC')::date dt FROM articles
+      WHERE NOT dismissed AND trusted AND national AND seen_at > now() - ($1 || ' days')::interval - interval '1 day'
+      GROUP BY 1, 2, 3 HAVING count(DISTINCT domain) >= $2)
+    SELECT a.id,a.title,a.url,a.domain,a.seen_at,a.type,a.state,a.city FROM articles a
+    WHERE ${where.join(' AND ')} AND EXISTS (SELECT 1 FROM major m WHERE m.state = a.state AND m.type = a.type
+      AND (a.seen_at AT TIME ZONE 'UTC')::date - m.dt BETWEEN 0 AND 1)
+    ORDER BY a.seen_at DESC LIMIT 120`, args);
   res.json(rows);
 });
 
@@ -118,9 +128,9 @@ app.get('/api/history', async (req, res) => {
 });
 
 app.get('/api/export.csv', async (_q, res) => {
-  const { rows } = await pool.query(`SELECT to_char(seen_at,'YYYY-MM-DD HH24:MI') seen, type, state, city, domain, trusted, title, url FROM articles WHERE NOT dismissed ORDER BY seen_at DESC`);
+  const { rows } = await pool.query(`SELECT to_char(seen_at,'YYYY-MM-DD HH24:MI') seen, type, state, city, domain, trusted, national, title, url FROM articles WHERE NOT dismissed ORDER BY seen_at DESC`);
   const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  res.type('text/csv').send(['seen,type,state,city,domain,counts,title,url', ...rows.map(r => [r.seen, r.type, r.state, r.city, r.domain, r.trusted ? 'yes' : 'no', r.title, r.url].map(esc).join(','))].join('\n'));
+  res.type('text/csv').send(['seen,type,state,city,domain,counts,national,title,url', ...rows.map(r => [r.seen, r.type, r.state, r.city, r.domain, r.trusted ? 'yes' : 'no', r.national ? 'yes' : 'no', r.title, r.url].map(esc).join(','))].join('\n'));
 });
 
 app.post('/api/ingest/run', async (_q, res) => { liveIngest(); res.json({ started: true }); });

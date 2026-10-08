@@ -212,7 +212,8 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
           <span><i style="background:var(--w)"></i>Watch 20 to 39</span><span><i style="background:var(--q)"></i>Quiet</span>
           <span><i class="go"></i>Launch or extend now</span><span><i class="weak"></i>Hold or wind down</span>
           <details class="how"><summary>How calls are made</summary>
-            <p>A <b>trigger</b> is a major story: 3x the market's normal and picked up by 8+ outlets (6 if someone was killed, stabbed or shot). Everyday crime in busy cities doesn't count, so most markets sit on Hold most days. A trigger opens a 14 day buying window. Repeat incidents keep it open, an arrest shortens it, a suspect at large extends it.</p>
+            <p>Only <b>major events</b> count: mass shootings and attacks, political figures attacked, real riots, and violent crime that went national. A story only counts once 3+ national outlets (AP, CNN, NBC, Fox, NYT...) cover it, so a week of local crime never moves the map. ICE enforcement is not tracked.</p>
+            <p>A <b>trigger</b> is a major story: 3x the market's normal and picked up by 6+ trusted outlets (4 if someone was killed, stabbed or shot). Most markets sit on Hold most days. A trigger opens a 14 day buying window. Repeat incidents keep it open, an arrest shortens it, a suspect at large extends it.</p>
             <p><b>Purchase power</b> is median household income vs the US. Under 85% holds, 85 to 110% runs with top 50% income targeting, 110%+ runs as is. Cities use their metro.</p>
           </details>
         </div>
@@ -229,7 +230,7 @@ const GRID={AK:[0,0],ME:[10,0],VT:[9,1],NH:[10,1],WA:[0,2],ID:[1,2],MT:[2,2],ND:
 OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IN:[5,3],OH:[6,3],PA:[7,3],NJ:[8,3],CT:[9,3],CA:[0,4],UT:[1,4],CO:[2,4],NE:[3,4],MO:[4,4],KY:[5,4],WV:[6,4],VA:[7,4],MD:[8,4],DE:[9,4],
 AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],GA:[7,6],HI:[0,7],TX:[3,7],FL:[8,7]};
 const WINDOW=14;
-const TIER_NAME={1:'High fit',2:'Medium fit',3:'Low fit'};
+const TIER_NAME={1:'Major event',2:'High-profile crime'};
 const S={types:new Set(),sel:null,meta:null,markets:[],cache:null};
 let selSeq=0;
 const $=id=>document.getElementById(id);
