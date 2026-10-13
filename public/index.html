@@ -170,6 +170,23 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
 .x{border:1px solid transparent;background:none;color:var(--mute);border-radius:7px;font-size:12px;cursor:pointer;padding:3px 8px;white-space:nowrap;flex:none}
 .x:hover{border-color:var(--line);background:var(--card);color:var(--ink)}
 
+/* AI fit read */
+.bsum{font-size:13.5px;font-weight:500;line-height:1.5;max-width:1000px}
+.bwarn{font-size:12px;color:var(--accent);margin-top:4px}
+.bpicks{display:grid;gap:0;margin-top:8px}
+.bp{display:grid;grid-template-columns:28px minmax(0,1fr);gap:4px 12px;padding:10px 0;border-top:1px solid var(--line2)}
+.bp:first-child{border-top:0}
+.bp .rk{font-size:15px;font-weight:650;color:var(--mute);line-height:1.4}
+.bp.top .rk{color:var(--good)}
+.bp .bh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.bp .bn{border:0;background:none;padding:0;font-size:14px;font-weight:650;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.bp .bn:hover{text-decoration-color:var(--ink)}
+.bp .why{color:var(--ink2);margin-top:3px;max-width:1000px}
+.bp .bx{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:5px;font-size:12px;color:var(--ink2)}
+.bp .bx b{font-weight:600;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-right:5px}
+.f-Strong{background:var(--good-soft);color:var(--good)}.f-Moderate{background:#fbf1dc;color:#8a5a00}.f-Weak{background:var(--line2);color:var(--ink2)}
+.tm{font-size:12px;color:var(--mute)}.tm.now{color:var(--good);font-weight:600}
+
 /* Map tooltip */
 #mtip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;opacity:0;z-index:20;max-width:260px;box-shadow:0 4px 12px rgba(0,0,0,.15)}
 #mtip b{font-size:14px}
@@ -203,6 +220,10 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
   <div class="kpis" id="kpis"></div>
 
   <div class="stack" id="main">
+    <section class="card" id="briefCard" hidden>
+      <div class="ch"><h2>Best fit for a TASER ad</h2><div style="display:flex;align-items:center;gap:12px"><span class="sub" id="briefMeta"></span><button class="btn" id="briefRe">Refresh</button></div></div>
+      <div class="cb" id="brief"><div class="empty">Reading active markets</div></div>
+    </section>
     <section class="card" id="mapCard">
       <div class="ch"><h2>Market heat</h2><div style="display:flex;align-items:center;gap:14px"><span class="sub">Click a state to open it</span><a class="btn" href="/api/export.csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export CSV</a></div></div>
       <div class="cb">
@@ -261,8 +282,10 @@ async function init(){
   };
   addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sel)closeState()});
   renderStatus(S.meta);
+  if(S.meta.ai){$('briefCard').hidden=false;$('briefRe').onclick=()=>loadBrief(true);$('brief').onclick=e=>{const b=e.target.closest('button[data-k]');if(b&&GRID[b.dataset.k])openMarket(b.dataset.k)}}
   await refresh();
-  setInterval(async()=>{try{const m=await j('/api/meta');S.meta.status=m.status;S.meta.income=m.income;renderStatus(S.meta)}catch{}refresh()},5*60e3);
+  if(S.meta.ai)loadBrief();
+  setInterval(async()=>{try{const m=await j('/api/meta');S.meta.status=m.status;S.meta.income=m.income;renderStatus(S.meta)}catch{}refresh();if(S.meta.ai)loadBrief()},5*60e3);
 }
 
 function renderStatus(meta){
@@ -293,6 +316,27 @@ function renderKpis(){
     k('Watch','var(--w)',n('Watch'),'small triggers, prep only')+
     k('Held for income','#c4c3bc',lowHeld,'triggered but low purchase power')+
     `<div class="kpi"><div class="k">Top opportunity</div><div class="v sm" title="${esc(top?marketName(top.key):'')}">${esc(top?marketName(top.key):'None right now')}</div><div class="d">${top?`${esc(top.call)} · score <b class="num">${top.score}</b> · ${top.win.daysLeft}d left`:'No affordable market has a fresh trigger'}</div></div>`;
+}
+
+// AI fit read: ranks the active markets by how open people there would be to a TASER ad right now.
+let briefSeq=0;
+async function loadBrief(force){
+  const seq=++briefSeq,el=$('brief'),btn=$('briefRe');
+  btn.disabled=true;if(force){btn.textContent='Thinking';el.classList.add('loading')}
+  let b;try{b=await j('/api/brief'+(force?'?force=1':''))}catch(e){b={error:'Could not reach the server'}}
+  if(seq!==briefSeq)return;
+  btn.disabled=false;btn.textContent='Refresh';el.classList.remove('loading');
+  if(b.disabled){$('briefCard').hidden=true;return}
+  const r=b.result;
+  $('briefMeta').textContent=b.at&&!b.empty?`AI read ${ago(b.at)} · check before acting`:'';
+  if(!r){el.innerHTML=`<div class="empty">AI read failed: ${esc(b.error||'unknown error')}</div>`;return}
+  const warn=b.stale?`<div class="bwarn">Showing the last read. Refresh failed: ${esc(b.error||'')}</div>`:'';
+  el.innerHTML=`<div class="bsum">${esc(r.summary)}</div>${warn}`+(r.picks.length?`<div class="bpicks">${r.picks.map((p,i)=>`<div class="bp ${p.market===r.best?'top':''}">
+    <div class="rk num">${i+1}</div><div style="min-width:0">
+      <div class="bh"><button class="bn" data-k="${esc(p.market)}">${esc(marketName(p.market))}</button><span class="call f-${esc(p.fit)}">${esc(p.fit)} fit</span><span class="tm ${p.timing==='Now'?'now':''}">${esc(p.timing)}</span></div>
+      <div class="why">${esc(p.why)}</div>
+      <div class="bx"><span><b>Angle</b>${esc(p.angle)}</span><span><b>Who</b>${esc(p.audience)}</span>${p.cities&&p.cities.length?`<span><b>Cities</b>${esc(p.cities.join(', '))}</span>`:''}${p.negatives&&p.negatives.length?`<span><b>Negatives</b>${esc(p.negatives.join(', '))}</span>`:''}</div>
+    </div></div>`).join('')}</div>`:'');
 }
 
 function renderMap(){
