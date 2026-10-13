@@ -328,7 +328,7 @@ async function loadBrief(force){
   btn.disabled=false;btn.textContent='Refresh';el.classList.remove('loading');
   if(b.disabled){$('briefCard').hidden=true;return}
   const r=b.result;
-  $('briefMeta').textContent=b.at&&!b.empty?`AI read ${ago(b.at)} · check before acting`:'';
+  $('briefMeta').textContent=b.at&&!b.empty?`AI read ${ago(b.at)}${b.model?' · '+b.model:''} · check before acting`:'';
   if(!r){el.innerHTML=`<div class="empty">AI read failed: ${esc(b.error||'unknown error')}</div>`;return}
   const warn=b.stale?`<div class="bwarn">Showing the last read. Refresh failed: ${esc(b.error||'')}</div>`:'';
   el.innerHTML=`<div class="bsum">${esc(r.summary)}</div>${warn}`+(r.picks.length?`<div class="bpicks">${r.picks.map((p,i)=>`<div class="bp ${p.market===r.best?'top':''}">
