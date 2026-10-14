@@ -223,6 +223,35 @@ dialog#pdlg::backdrop{background:rgba(18,18,18,.35)}
 .pf .err{color:var(--accent);font-size:12.5px;margin-top:10px}
 .pf .foot{display:flex;justify-content:space-between;gap:8px;margin-top:16px;align-items:center}
 .pf .foot>div{display:flex;gap:8px}
+dialog#pdlg{max-height:calc(100vh - 32px);overflow:auto}
+
+/* Stories (detail feed) */
+.story{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 11px;margin-bottom:7px}
+.story.open{border-color:#cfcec7}
+.story .sh{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}
+.story .sl{border:0;background:none;padding:0;text-align:left;font-weight:600;font-size:13px;line-height:1.4;cursor:pointer;display:flex;gap:6px;align-items:flex-start}
+.story .sl:hover{text-decoration:underline;text-underline-offset:2px}
+.story .sl i{font-style:normal;color:var(--mute);font-size:11px;margin-top:2px;transition:transform .15s}
+.story.open .sl i{transform:rotate(90deg)}
+.story .sa{display:flex;gap:4px;flex:none}
+.story .flag{font-size:11.5px;font-weight:600}
+.story .flag.at{color:var(--accent)}.story .flag.ar{color:var(--good)}
+.story .heads{margin-top:8px;border-top:1px solid var(--line2);padding-top:6px}
+.story .heads .ev{padding:6px 0}
+.btn.sm{padding:3px 9px;font-size:12px}
+
+/* AI push draft */
+.pai{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel);font-size:12.5px}
+.pai .ah{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-bottom:4px}
+.pai .ah b{font-size:13px}
+.pai .take{color:var(--ink);line-height:1.5}
+.pai ul{margin:6px 0 0;padding-left:18px;color:var(--ink2)}
+.pai li{margin:2px 0}
+.pai .am{color:var(--mute);font-size:11.5px;margin-top:6px}
+.pai.loading .take{color:var(--mute)}
+.pai .rep{display:flex;gap:7px;align-items:center;margin-top:8px;font-weight:500}
+.pai .rep input{width:auto;margin:0}
+.v-Push{background:var(--good-soft);color:var(--good)}.v-Wait{background:#fbf1dc;color:#8a5a00}.v-Skip{background:var(--accent-soft);color:var(--accent)}
 
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:980px){.pgrid{grid-template-columns:1fr;gap:8px}.pfeed{max-height:none}}
@@ -283,6 +312,7 @@ dialog#pdlg::backdrop{background:rgba(18,18,18,.35)}
 
 <dialog id="pdlg"><form class="pf" id="pform" method="dialog" novalidate>
   <h3 id="pTitle">Start push</h3><div class="sub" id="pSub"></div>
+  <div class="pai" id="pAi" hidden></div>
   <div class="fs">
     <label>State<select name="market" required></select></label>
     <label>Start date<input type="date" name="started_on" required></label>
@@ -291,6 +321,7 @@ dialog#pdlg::backdrop{background:rgba(18,18,18,.35)}
     <label>Daily budget<input name="daily_budget" inputmode="decimal" placeholder="15"></label>
     <label class="full">Messaging angle<input name="angle" placeholder="home protection"></label>
     <label class="full">Why we pushed<textarea name="reason" placeholder="What triggered it"></textarea></label>
+    <label class="full">Negative keywords<textarea name="negatives" placeholder="Event terms to block, comma separated" style="min-height:40px"></textarea></label>
   </div>
   <div id="pRes">
     <div class="sect">Results<span>From Google Ads, for the push dates</span></div>
@@ -318,7 +349,7 @@ OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IN:[5,3],OH:[6,3],PA:[7,3],NJ:[8,3]
 AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],GA:[7,6],HI:[0,7],TX:[3,7],FL:[8,7]};
 const WINDOW=14;
 const TIER_NAME={1:'Major event',2:'High-profile crime'};
-const S={types:new Set(),sel:null,meta:null,markets:[],cache:null,pushes:[],brief:null};
+const S={types:new Set(),sel:null,meta:null,markets:[],cache:null,pushes:[],brief:null,openStories:new Set()};
 let selSeq=0;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -371,6 +402,7 @@ async function refresh(){
   renderKpis();renderMap();
   if(S.sel)loadDetail();
 }
+const storyById=id=>(S.cache&&S.cache.key===S.sel&&S.cache.st||[]).find(x=>x.id==id);
 
 function renderKpis(){
   const n=c=>S.markets.filter(m=>m.call===c).length;
@@ -480,29 +512,31 @@ function selMarket(){const key=S.sel;return S.markets.find(x=>x.key===key)||{key
 // Draw the panel from whatever we have cached; loadDetail fills in events and history.
 function paintDetail(){
   const el=$('detail');if(!el||!S.sel)return;
-  const m=selMarket();const c=S.cache&&S.cache.key===S.sel?S.cache:{h:null,ev:null};
+  const m=selMarket();const c=S.cache&&S.cache.key===S.sel?S.cache:{h:null,st:null};
   el.innerHTML=`<div class="xin"><div class="ptop"><div><div class="sub">State${m.ledBy?` · driven by ${esc(m.ledBy)}`:''}</div><h3 class="dname">${esc(marketName(m.key))}</h3>
       <div class="pbadges">${callTag(m)}<span class="badge b-${m.level}">${esc(m.level)}</span>${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span></div></div>
     <button class="close" id="pClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-    ${bodyHtml(m,c.h,c.ev)}</div>`;
+    ${bodyHtml(m,c.h,c.st)}</div>`;
   el.onclick=e=>e.stopPropagation();
   $('pClose').onclick=closeState;
-  $('pHere').onclick=()=>openPush('new',prefill(S.sel));
+  $('pHere').onclick=()=>startPush(S.sel,null);
   $('pPanel').onclick=pushClick;
   if(c.h)renderHist(c.h);
-  $('feed').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;b.disabled=true;
-    await fetch(`/api/events/${b.dataset.id}/dismiss`,{method:'POST'});b.closest('.ev').remove();refresh()};
+  $('feed').onclick=storyClick;
 }
 
-async function loadDetail(){
+async function loadDetail(retry){
   const seq=++selSeq;const key=S.sel;if(!key)return;
-  let ev=[],h=[];
-  try{[ev,h]=await Promise.all([j(`/api/events?market=${encodeURIComponent(key)}&days=14${tq()}`),j(`/api/history?market=${encodeURIComponent(key)}&level=state&days=90${tq()}`)])}catch(e){}
+  let st=[],h=[],pending=false;
+  const stories=async()=>{const r=await fetch(`/api/stories?market=${encodeURIComponent(key)}&days=14${tq()}`);if(!r.ok)throw new Error(r.status);pending=r.headers.get('X-Names-Pending')==='1';return r.json()};
+  try{[st,h]=await Promise.all([stories(),j(`/api/history?market=${encodeURIComponent(key)}&level=state&days=90${tq()}`)])}catch(e){}
   if(seq!==selSeq||S.sel!==key)return; // a newer selection won
-  S.cache={key,h,ev};paintDetail();
+  S.cache={key,h,st};paintDetail();
+  // story names still being written: pick them up once they're ready
+  if(pending&&!retry)setTimeout(()=>{if(seq===selSeq&&S.sel===key)loadDetail(true)},6000);
 }
 
-function bodyHtml(m,h,ev){
+function bodyHtml(m,h,st){
   const by=Object.entries(m.byType||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   const mx=Math.max(...by.map(([,v])=>v),0.01);
   const w=m.win,a=m.afford;
@@ -523,10 +557,34 @@ function bodyHtml(m,h,ev){
     <div class="sect">Our pushes here<button class="btn" id="pHere" style="text-transform:none;letter-spacing:0;font-weight:500">Start push here</button></div>
     <div class="plist" id="pPanel">${panelPushes()}</div>
     </div><div>
-    <div class="sect">Event feed<span>Last 14 days</span></div>
-    <div id="feed" class="pfeed">${ev==null?'<div class="empty">Loading events</div>':ev.length?ev.map(e=>`<div class="ev"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
-      <div class="meta"><span class="pill">${esc(tlabel(e.type))}</span>${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
-      <button class="x" data-id="${e.id}" title="Not relevant. Removes it from scoring">Dismiss</button></div>`).join(''):'<div class="empty">No events in the last 14 days.</div>'}</div></div></div>`;
+    <div class="sect">Stories<span>Last 14 days · pick one to push on</span></div>
+    <div id="feed" class="pfeed">${st==null?'<div class="empty">Loading stories</div>':st.length?st.map(storyHtml).join(''):'<div class="empty">No stories in the last 14 days.</div>'}</div></div></div>`;
+}
+
+// One story: a group of headlines about the same event. Click the title to see its headlines.
+function storyHtml(x){
+  const open=S.openStories.has(x.id);
+  const span=x.first_seen===x.last_seen?ago(x.last_seen):`${ago(x.first_seen)} to ${ago(x.last_seen)}`;
+  const flags=[x.at_large?'<span class="flag at">Suspect at large</span>':'',x.arrest&&!x.at_large?'<span class="flag ar">Arrest reported</span>':''].join('');
+  return `<div class="story ${open?'open':''}" data-sid="${x.id}"><div class="sh"><div style="min-width:0">
+      <button class="sl" data-toggle="${x.id}"><i>▶</i><span title="${esc(x.label)}">${esc(x.name||x.label)}</span></button>
+      <div class="meta"><span class="pill">${esc(tlabel(x.type))}</span>${x.cities.length?`<span>${esc(x.cities.slice(0,3).join(', '))}</span>`:''}<span class="num">${x.outlets} outlet${x.outlets===1?'':'s'}</span><span>${esc(span)}</span>${flags}</div></div>
+    <div class="sa"><button class="btn pri sm" data-start="${x.id}">Start push</button><button class="x" data-dstory="${x.id}" title="Not relevant. Removes every headline in this story from scoring">Dismiss</button></div></div>
+    ${open?`<div class="heads">${x.headlines.map(e=>`<div class="ev"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
+      <div class="meta">${e.city?`<span>${esc(e.city)}</span>`:''}<span>${esc(e.domain||'')}</span><span title="${esc(new Date(e.seen_at).toLocaleString())}">${ago(e.seen_at)}</span></div></div>
+      <button class="x" data-ids="${e.ids.join(',')}" title="Not relevant. Removes it from scoring">Dismiss</button></div>`).join('')}</div>`:''}</div>`;
+}
+
+async function storyClick(e){
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.toggle){const id=+b.dataset.toggle;S.openStories.has(id)?S.openStories.delete(id):S.openStories.add(id);const x=storyById(id);if(x)b.closest('.story').outerHTML=storyHtml(x);return}
+  if(b.dataset.start){startPush(S.sel,storyById(b.dataset.start));return}
+  const ids=b.dataset.dstory?storyById(b.dataset.dstory)?.headlines.flatMap(h=>h.ids):b.dataset.ids?b.dataset.ids.split(',').map(Number):null;
+  if(!ids)return;
+  b.disabled=true;
+  await fetch('/api/events/dismiss',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
+  (b.dataset.dstory?b.closest('.story'):b.closest('.ev')).remove();
+  refresh();
 }
 
 function renderHist(h){
@@ -606,11 +664,47 @@ function pushClick(e){
   else if(b.dataset.k&&GRID[b.dataset.k]){openMarket(b.dataset.k)}
 }
 
-// Prefill a new push from what the tracker and AI read say about this state right now.
-function prefill(k){
+// Instant prefill from what we already have on the page. The AI draft replaces it a few seconds later.
+function prefill(k,story){
   const m=S.markets.find(x=>x.key===k)||{};const pick=S.brief?.picks?.find(p=>p.market===k);
-  const why=m.call&&m.call!=='Hold'?`${m.call}, heat ${m.score}${m.topTypes?.length?' · '+m.topTypes.map(tlabel).join(', '):''}`:'';
-  return {market:k,cities:(pick?.cities?.length?pick.cities:m.cities||[]).join(', '),angle:pick?.angle||'',reason:why};
+  const call=m.call&&m.call!=='Hold'?`Tracker ${m.call}, heat ${m.score}`:'';
+  const why=story?[`${story.name||story.label} (${story.outlets} outlets)`,call].filter(Boolean).join('. '):call?`${call}${m.topTypes?.length?' · '+m.topTypes.map(tlabel).join(', '):''}`:'';
+  const cities=story?.cities?.length?story.cities.slice(0,3):pick?.cities?.length?pick.cities:m.cities||[];
+  return {market:k,cities:cities.join(', '),angle:pick?.angle||'',reason:why};
+}
+
+// Start push from a story (or the state's top story): open the form right away, then let the AI draft fill it in.
+function startPush(k,story){
+  openPush('new',prefill(k,story));
+  if(S.meta.ai)runDraft(k,story);
+}
+
+let draftSeq=0,pReplace=null;const dirty=new Set();
+async function runDraft(k,story){
+  const seq=++draftSeq,el=$('pAi');
+  el.hidden=false;el.className='pai loading';
+  el.innerHTML=`<div class="take">Reading ${story?'this story':'the top story here'} against the rest of ${esc(marketName(k))}, other markets and the push log</div>`;
+  let r;
+  try{
+    const res=await fetch('/api/pushes/draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({market:k,story:story?story.id:null})});
+    r=await res.json().catch(()=>({}));if(!res.ok)throw new Error(r.error||'request failed');
+  }catch(e){
+    if(seq!==draftSeq)return;
+    el.className='pai';el.innerHTML=`<div class="take">AI draft failed: ${esc(e.message)}. Fill it in by hand or <button type="button" class="linkbtn" id="pRetry">try again</button>.</div>`;
+    $('pRetry').onclick=()=>runDraft(k,story);return;
+  }
+  if(seq!==draftSeq||!$('pdlg').open)return;
+  const d=r.draft,f=$('pform');
+  // fields you already touched are left alone
+  const set=(n,v)=>{if(v==null||v===''||dirty.has(n))return;f[n].value=v};
+  set('cities',(d.cities||[]).join(', '));set('angle',d.angle);set('reason',d.reason);set('campaign',d.campaign);set('daily_budget',d.daily_budget);set('negatives',(d.negatives||[]).join(', '));
+  pReplace=d.replaces_push_id?S.pushes.find(p=>p.id===d.replaces_push_id&&!p.ended_on)||null:null;
+  el.className='pai';
+  el.innerHTML=`<div class="ah"><b>${esc(d.story_label||r.story.label)}</b><span class="call v-${esc(String(d.verdict).split(' ')[0])}">${esc(d.verdict)}</span><span class="call f-${esc(d.fit)}">${esc(d.fit)} fit</span>${d.audience?`<span class="sub">Who: ${esc(d.audience)}</span>`:''}</div>
+    <div class="take">${esc(d.take)}</div>
+    ${d.heads_up&&d.heads_up.length?`<ul>${d.heads_up.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:''}
+    ${pReplace?`<label class="rep"><input type="checkbox" id="pRep" checked>End the live ${esc(marketName(pReplace.market))} push (since ${esc(fmtDay(pReplace.started_on))}) when I save</label>`:''}
+    <div class="am">AI draft${r.model?' · '+esc(r.model):''}${r.cached?' · cached':''} · edit anything before saving</div>`;
 }
 
 let pEdit=null;
@@ -621,7 +715,7 @@ function initPushes(){
   $('pushNew').onclick=()=>openPush('new',{});
   $('pushes').onclick=pushClick;
   $('pCancel').onclick=()=>$('pdlg').close();
-  f.oninput=showCalc;
+  f.oninput=e=>{if(e.target.name)dirty.add(e.target.name);showCalc()};
   f.onsubmit=savePush;
   $('pDel').onclick=async()=>{if(!pEdit)return;$('pDel').textContent='Click again to delete';if(!$('pDel').dataset.arm){$('pDel').dataset.arm=1;return}
     await fetch('/api/pushes/'+pEdit.id,{method:'DELETE'});$('pdlg').close();loadPushes()};
@@ -630,6 +724,7 @@ function initPushes(){
 function openPush(mode,p){
   if(!p)return;
   const f=$('pform');f.reset();pEdit=mode==='new'?null:p;
+  draftSeq++;pReplace=null;dirty.clear();$('pAi').hidden=true;$('pAi').innerHTML='';
   for(const el of f.elements)if(el.name&&p[el.name]!=null)el.value=p[el.name];
   if(mode==='new'&&!p.started_on)f.started_on.value=localDay();
   if(mode==='end'&&!p.ended_on)f.ended_on.value=localDay();
@@ -658,6 +753,8 @@ async function savePush(e){
   const r=await fetch(pEdit?'/api/pushes/'+pEdit.id:'/api/pushes',{method:pEdit?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const out=await r.json().catch(()=>({error:'Save failed'}));
   if(!r.ok){showErr(out.error||'Save failed');$('pSave').disabled=false;$('pSave').textContent='Save';return}
+  // one campaign: starting this push ends the one it replaces
+  if(!pEdit&&pReplace&&$('pRep')?.checked)await fetch('/api/pushes/'+pReplace.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({ended_on:body.started_on||localDay()})});
   $('pdlg').close();loadPushes();
 }
 function showErr(m){$('pErr').textContent=m;$('pErr').hidden=false}

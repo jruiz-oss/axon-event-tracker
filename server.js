@@ -8,6 +8,9 @@ import { STATES } from './lib/geo.js';
 import { scoreMarket, dayKey } from './lib/score.js';
 import { loadGroups, parseTypes, rankedMarkets, majorEvents } from './lib/markets.js';
 import { getBrief } from './lib/brief.js';
+import { storiesFor, draftPush } from './lib/draft.js';
+import { aiOn } from './lib/ai.js';
+import { nameStories } from './lib/names.js';
 import { listPushes, createPush, updatePush, deletePush, pushesCsv, OUTCOMES } from './lib/pushes.js';
 import { liveIngest, backfill, backfillStatus, probe, reprocessIfChanged, syncTrust } from './lib/ingest.js';
 
@@ -29,7 +32,7 @@ app.use(express.static(path.join(__dir, 'public')));
 app.get('/healthz', (_q, r) => r.send('ok'));
 
 app.get('/api/meta', async (_q, res) => {
-  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS), income: incomeStatus(), outcomes: OUTCOMES, ai: !!process.env.ANTHROPIC_API_KEY });
+  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS), income: incomeStatus(), outcomes: OUTCOMES, ai: aiOn() });
 });
 
 app.get('/api/markets', async (req, res) => {
@@ -50,6 +53,24 @@ app.get('/api/events', async (req, res) => {
 app.get('/api/brief', async (req, res) => {
   try { res.json(await getBrief({ force: req.query.force === '1' })); }
   catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
+});
+
+// Headlines grouped into stories for one state (the detail panel's feed).
+app.get('/api/stories', async (req, res) => {
+  try {
+    const market = String(req.query.market || '').toUpperCase();
+    if (!STATES[market]) return res.status(400).json({ error: 'Pick a state' });
+    const stories = await storiesFor(market, { days: Math.min(+req.query.days || 14, 90), types: parseTypes(req.query.types) });
+    const pending = await nameStories(stories);
+    res.set('X-Names-Pending', pending ? '1' : '0').json(stories);
+  } catch (e) { console.error(e); res.status(500).json({ error: e.message }); }
+});
+
+// Dismiss a whole story (all its articles) in one go.
+app.post('/api/events/dismiss', async (req, res) => {
+  const ids = (Array.isArray(req.body?.ids) ? req.body.ids : []).map(Number).filter(Number.isInteger).slice(0, 1000);
+  if (ids.length) await pool.query(`UPDATE articles SET dismissed = TRUE WHERE id = ANY($1)`, [ids]);
+  res.json({ ok: true, n: ids.length });
 });
 
 app.post('/api/events/:id/dismiss', async (req, res) => {
@@ -87,6 +108,8 @@ const send = fn => async (req, res) => {
   catch (e) { const code = e.status || 500; if (code === 500) console.error(e); res.status(code).json({ error: e.message }); }
 };
 app.get('/api/pushes', send(req => listPushes(req.query.market ? String(req.query.market).toUpperCase() : null)));
+// AI draft of a push from a story: fills the form and reads it against the rest of the tracker and the push log.
+app.post('/api/pushes/draft', send(req => draftPush(req.body || {})));
 app.post('/api/pushes', send(req => createPush(req.body)));
 app.patch('/api/pushes/:id', send(req => updatePush(req.params.id, req.body)));
 app.delete('/api/pushes/:id', send(async req => { await deletePush(req.params.id); return { ok: true }; }));
