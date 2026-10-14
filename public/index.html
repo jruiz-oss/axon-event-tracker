@@ -192,9 +192,42 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
 #mtip b{font-size:14px}
 #mtip .mt{color:#c9c8c2;margin-top:2px}
 
+/* Push log */
+.ptable{width:100%;border-collapse:collapse;font-size:12.5px}
+.pwrap{overflow-x:auto}
+.ptable th{text-align:left;font-size:11px;font-weight:600;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;padding:6px 10px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.ptable td{padding:9px 10px 9px 0;border-top:1px solid var(--line2);vertical-align:top}
+.ptable tr:first-child td{border-top:0}
+.ptable td.r,.ptable th.r{text-align:right}
+.ptable .pn{font-weight:600;border:0;background:none;padding:0;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.ptable .ps{color:var(--mute);font-size:12px;margin-top:2px;max-width:280px}
+.ptable .acts{white-space:nowrap;text-align:right}
+.livep{background:var(--good-soft);color:var(--good)}
+.o-Worked{background:var(--good-soft);color:var(--good)}.o-Mixed{background:#fbf1dc;color:#8a5a00}.o-Flat{background:var(--line2);color:var(--ink2)}.o-Did{background:var(--accent-soft);color:var(--accent)}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.pri:hover{background:#2b2b2b}
+.plist{display:grid;gap:6px}
+.pi{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 11px;font-size:12.5px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.pi .ps{color:var(--mute);font-size:12px;margin-top:2px}
+dialog#pdlg{border:0;border-radius:14px;padding:0;width:min(640px,calc(100vw - 32px));box-shadow:0 20px 60px rgba(0,0,0,.25);color:var(--ink)}
+dialog#pdlg::backdrop{background:rgba(18,18,18,.35)}
+.pf{padding:18px 20px}
+.pf h3{margin:0 0 4px;font-size:16px;font-weight:650}
+.pf .fs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;margin-top:12px}
+.pf .full{grid-column:1/-1}
+.pf label{display:grid;gap:4px;font-size:12px;color:var(--ink2);font-weight:500}
+.pf input,.pf select,.pf textarea{font:inherit;font-size:13px;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--card);width:100%}
+.pf textarea{min-height:56px;resize:vertical}
+.pf input:focus,.pf select:focus,.pf textarea:focus{outline:2px solid var(--ink);outline-offset:-1px}
+.pf .sect{margin:18px 0 0}
+.pf .live-calc{font-size:12px;color:var(--ink2);grid-column:1/-1;display:flex;gap:16px;flex-wrap:wrap}
+.pf .err{color:var(--accent);font-size:12.5px;margin-top:10px}
+.pf .foot{display:flex;justify-content:space-between;gap:8px;margin-top:16px;align-items:center}
+.pf .foot>div{display:flex;gap:8px}
+
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:980px){.pgrid{grid-template-columns:1fr;gap:8px}.pfeed{max-height:none}}
 @media(max-width:640px){
+  .pf .fs{grid-template-columns:1fr}
   .hwrap,.wrap{padding-left:16px;padding-right:16px}
   .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
   #map{gap:3px}.tile{font-size:9.5px;border-radius:5px;aspect-ratio:1}.tile small{display:none}.tile .go{top:2px;right:2px;width:5px;height:5px}
@@ -241,8 +274,41 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
       </div>
     </section>
 
+    <section class="card" id="pushCard">
+      <div class="ch"><h2>Push log</h2><div style="display:flex;align-items:center;gap:10px"><span class="sub">What we actually ran and how it went</span><a class="btn" href="/api/pushes.csv">Export</a><button class="btn pri" id="pushNew">Start push</button></div></div>
+      <div class="cb" id="pushes"><div class="empty">Loading pushes</div></div>
+    </section>
   </div>
 </div>
+
+<dialog id="pdlg"><form class="pf" id="pform" method="dialog" novalidate>
+  <h3 id="pTitle">Start push</h3><div class="sub" id="pSub"></div>
+  <div class="fs">
+    <label>State<select name="market" required></select></label>
+    <label>Start date<input type="date" name="started_on" required></label>
+    <label class="full">Cities<input name="cities" placeholder="Houston, Dallas"></label>
+    <label>Campaign<input name="campaign" placeholder="Name in Google Ads"></label>
+    <label>Daily budget<input name="daily_budget" inputmode="decimal" placeholder="15"></label>
+    <label class="full">Messaging angle<input name="angle" placeholder="home protection"></label>
+    <label class="full">Why we pushed<textarea name="reason" placeholder="What triggered it"></textarea></label>
+  </div>
+  <div id="pRes">
+    <div class="sect">Results<span>From Google Ads, for the push dates</span></div>
+    <div class="fs">
+      <label>End date<input type="date" name="ended_on"></label>
+      <label>Outcome<select name="outcome"></select></label>
+      <label>Spend<input name="spend" inputmode="decimal"></label>
+      <label>Impressions<input name="impressions" inputmode="numeric"></label>
+      <label>Clicks<input name="clicks" inputmode="numeric"></label>
+      <label>Conversions<input name="conversions" inputmode="decimal"></label>
+      <label>Conv. value<input name="conv_value" inputmode="decimal"></label>
+      <div class="live-calc num" id="pCalc"></div>
+      <label class="full">Notes<textarea name="notes" placeholder="What worked, what didn't, what to do next time"></textarea></label>
+    </div>
+  </div>
+  <div class="err" id="pErr" hidden></div>
+  <div class="foot"><button type="button" class="linkbtn" id="pDel" hidden>Delete</button><span></span><div><button type="button" class="btn" id="pCancel">Cancel</button><button type="submit" class="btn pri" id="pSave">Save</button></div></div>
+</form></dialog>
 
 <div id="mtip"></div>
 
@@ -252,7 +318,7 @@ OR:[0,3],NV:[1,3],WY:[2,3],SD:[3,3],IA:[4,3],IN:[5,3],OH:[6,3],PA:[7,3],NJ:[8,3]
 AZ:[1,5],NM:[2,5],KS:[3,5],AR:[4,5],TN:[5,5],NC:[6,5],SC:[7,5],DC:[8,5],OK:[3,6],LA:[4,6],MS:[5,6],AL:[6,6],GA:[7,6],HI:[0,7],TX:[3,7],FL:[8,7]};
 const WINDOW=14;
 const TIER_NAME={1:'Major event',2:'High-profile crime'};
-const S={types:new Set(),sel:null,meta:null,markets:[],cache:null};
+const S={types:new Set(),sel:null,meta:null,markets:[],cache:null,pushes:[],brief:null};
 let selSeq=0;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -280,10 +346,12 @@ async function init(){
     else{const b=e.target.closest('button.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
     $('clearT').hidden=!S.types.size;$('fcount').textContent=S.types.size?`· ${S.types.size} selected`:'· all';refresh();
   };
-  addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sel)closeState()});
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sel&&!$('pdlg').open)closeState()});
   renderStatus(S.meta);
   if(S.meta.ai){$('briefCard').hidden=false;$('briefRe').onclick=()=>loadBrief(true);$('brief').onclick=e=>{const b=e.target.closest('button[data-k]');if(b&&GRID[b.dataset.k])openMarket(b.dataset.k)}}
+  initPushes();
   await refresh();
+  loadPushes();
   if(S.meta.ai)loadBrief();
   setInterval(async()=>{try{const m=await j('/api/meta');S.meta.status=m.status;S.meta.income=m.income;renderStatus(S.meta)}catch{}refresh();if(S.meta.ai)loadBrief()},5*60e3);
 }
@@ -327,7 +395,7 @@ async function loadBrief(force){
   if(seq!==briefSeq)return;
   btn.disabled=false;btn.textContent='Refresh';el.classList.remove('loading');
   if(b.disabled){$('briefCard').hidden=true;return}
-  const r=b.result;
+  const r=b.result;S.brief=r||S.brief;
   $('briefMeta').textContent=b.at&&!b.empty?`AI read ${ago(b.at)}${b.model?' · '+b.model:''} · check before acting`:'';
   if(!r){el.innerHTML=`<div class="empty">AI read failed: ${esc(b.error||'unknown error')}</div>`;return}
   const warn=b.stale?`<div class="bwarn">Showing the last read. Refresh failed: ${esc(b.error||'')}</div>`:'';
@@ -419,6 +487,8 @@ function paintDetail(){
     ${bodyHtml(m,c.h,c.ev)}</div>`;
   el.onclick=e=>e.stopPropagation();
   $('pClose').onclick=closeState;
+  $('pHere').onclick=()=>openPush('new',prefill(S.sel));
+  $('pPanel').onclick=pushClick;
   if(c.h)renderHist(c.h);
   $('feed').onclick=async e=>{const b=e.target.closest('button[data-id]');if(!b)return;b.disabled=true;
     await fetch(`/api/events/${b.dataset.id}/dismiss`,{method:'POST'});b.closest('.ev').remove();refresh()};
@@ -448,8 +518,10 @@ function bodyHtml(m,h,ev){
     <div class="rec ${recCls}"><div class="rl">${esc(m.call||'Hold')}</div><div class="rt">${esc(m.action)}</div>${m.expire?`<div class="rx">${esc(m.expire)}</div>`:''}</div>
     <div class="guard"><span>Confirm with Google Trends or search terms before shifting budget</span><span>Never reference the event in creative</span><span>Add event terms as negatives</span></div>
     ${by.length?`<div class="sect">Heat drivers<span>Buyer-fit weighted</span></div><div class="drv">${by.map(([t,v])=>`<div class="dl" title="${esc(tlabel(t))}">${esc(tlabel(t))}<em>${esc(TIER_NAME[S.meta.types[t]?.tier]||'')}</em></div><div class="db"><i style="width:${(v/mx*100).toFixed(1)}%"></i></div><div class="dv num">${v.toFixed(1)}</div>`).join('')}</div>`:''}
-    <div class="sect">Heat history<span>90 days</span></div>
+    <div class="sect">Heat history<span>90 days${marketPushes().length?' · shaded = our pushes':''}</span></div>
     <div class="chart" id="hist">${h?'':'<div class="empty">Loading history</div>'}</div>
+    <div class="sect">Our pushes here<button class="btn" id="pHere" style="text-transform:none;letter-spacing:0;font-weight:500">Start push here</button></div>
+    <div class="plist" id="pPanel">${panelPushes()}</div>
     </div><div>
     <div class="sect">Event feed<span>Last 14 days</span></div>
     <div id="feed" class="pfeed">${ev==null?'<div class="empty">Loading events</div>':ev.length?ev.map(e=>`<div class="ev"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
@@ -468,9 +540,12 @@ function renderHist(h){
   const fmt=d=>new Date(d+'T12:00:00Z').toLocaleDateString([], {month:'short',day:'numeric'});
   const lab=[0,Math.floor((h.length-1)/3),Math.floor(2*(h.length-1)/3),h.length-1].map(i=>`<text x="${x(i)}" y="${H-5}" text-anchor="${i===0?'start':i===h.length-1?'end':'middle'}">${fmt(h[i].d)}</text>`).join('');
   const last=h[h.length-1];
+  const iOf=d=>{if(d<h[0].d)return 0;const i=h.findIndex(x=>x.d>=d);return i<0?h.length-1:i};
+  const bands=marketPushes().filter(q=>(q.ended_on||'9999')>=h[0].d).map(q=>{const a=iOf(q.started_on),b=q.ended_on?iOf(q.ended_on):h.length-1;
+    return `<rect x="${x(a).toFixed(1)}" y="${p.t}" width="${Math.max(3,x(b)-x(a)).toFixed(1)}" height="${H-p.t-p.b}" fill="#2f7d4a" fill-opacity=".1"/>`}).join('');
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Score history, latest ${last.score}">
     <defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b23c0b" stop-opacity=".16"/><stop offset="1" stop-color="#b23c0b" stop-opacity="0"/></linearGradient></defs>
-    ${grid}<polygon points="${area}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${bands}${grid}<polygon points="${area}" fill="url(#ag)"/><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
     <circle cx="${x(h.length-1)}" cy="${y(last.score)}" r="4" fill="var(--accent)" stroke="#fff" stroke-width="2"/>
     ${lab}
     <g id="xh" style="opacity:0"><line y1="${p.t}" y2="${H-p.b}" stroke="#bdbcb5"/><circle r="4.5" fill="var(--accent)" stroke="#fff" stroke-width="2"/></g>
@@ -485,6 +560,108 @@ function renderHist(h){
   svg.querySelector('#hit').addEventListener('pointermove',move);
   svg.querySelector('#hit').addEventListener('pointerleave',()=>{xh.style.opacity=0;tip.style.opacity=0});
 }
+// ---- Push log: manual record of what we actually ran, start/end, and results. Not connected to Google Ads.
+const localDay=()=>{const d=new Date();return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+const fmtDay=d=>d?new Date(d+'T12:00:00Z').toLocaleDateString([], {month:'short',day:'numeric',year:d.slice(0,4)===localDay().slice(0,4)?undefined:'numeric'}):'';
+const daysRun=p=>Math.round((Date.parse(p.ended_on||localDay())-Date.parse(p.started_on))/864e5)+1;
+const usd=(v,dp=0)=>v==null||!isFinite(v)?'':'$'+v.toLocaleString([], {minimumFractionDigits:dp,maximumFractionDigits:dp});
+const pct=v=>v==null||!isFinite(v)?'':(v*100).toFixed(v<.1?2:1)+'%';
+function calc(p){const n=v=>v==null||v===''?null:+v;const sp=n(p.spend),im=n(p.impressions),cl=n(p.clicks),cv=n(p.conversions),va=n(p.conv_value);
+  return {ctr:im&&cl!=null?cl/im:null,cvr:cl&&cv!=null?cv/cl:null,cpa:cv&&sp!=null?sp/cv:null,roas:sp&&va!=null?va/sp:null}}
+const marketPushes=()=>S.pushes.filter(p=>p.market===S.sel);
+const outcomeTag=o=>o?`<span class="call o-${esc(o.split(' ')[0])}">${esc(o)}</span>`:'';
+const statusTag=p=>p.ended_on?outcomeTag(p.outcome)||'<span class="call c-Hold">Ended</span>':`<span class="call livep">Live · day ${daysRun(p)}</span>`;
+const heatTxt=p=>p.heat_start==null?'':`${p.heat_start}${p.ended_on?' → '+(p.heat_end??'?'):''}`;
+
+async function loadPushes(){
+  try{S.pushes=await j('/api/pushes')}catch(e){$('pushes').innerHTML='<div class="empty">Could not load pushes</div>';return}
+  renderPushes();
+  if(S.sel&&$('pPanel')){$('pPanel').innerHTML=panelPushes();if(S.cache&&S.cache.key===S.sel&&S.cache.h)renderHist(S.cache.h)}
+}
+
+function renderPushes(){
+  const el=$('pushes');
+  if(!S.pushes.length){el.innerHTML='<div class="empty">No pushes logged yet. Hit Start push when you turn a market on.</div>';return}
+  el.innerHTML=`<div class="pwrap"><table class="ptable"><thead><tr><th>Status</th><th>Market</th><th>Dates</th><th class="r">Heat</th><th class="r">Spend</th><th class="r">Conv</th><th class="r">CPA</th><th class="r">CVR</th><th class="r">CTR</th><th></th></tr></thead><tbody>${S.pushes.map(p=>{const c=calc(p);
+    return `<tr><td>${statusTag(p)}</td>
+      <td><button class="pn" data-k="${esc(p.market)}">${esc(marketName(p.market))}</button>${p.cities?` <span class="sub">${esc(p.cities)}</span>`:''}<div class="ps">${esc([p.campaign,p.angle].filter(Boolean).join(' · '))}</div></td>
+      <td style="white-space:nowrap">${esc(fmtDay(p.started_on))} to ${p.ended_on?esc(fmtDay(p.ended_on)):'now'}<div class="ps">${daysRun(p)}d${p.daily_budget?' · '+usd(p.daily_budget)+'/day':''}</div></td>
+      <td class="r num" title="Tracker heat at start${p.ended_on?' and end':''}${p.call_start?'. Call at start: '+esc(p.call_start):''}">${heatTxt(p)}</td>
+      <td class="r num">${usd(p.spend)}</td><td class="r num">${p.conversions??''}</td><td class="r num">${usd(c.cpa,2)}</td><td class="r num">${pct(c.cvr)}</td><td class="r num">${pct(c.ctr)}</td>
+      <td class="acts">${p.ended_on?'':`<button class="btn" data-end="${p.id}">End + results</button> `}<button class="x" data-edit="${p.id}">Edit</button></td></tr>`}).join('')}</tbody></table></div>`;
+}
+
+function panelPushes(){
+  const ps=marketPushes();
+  if(!ps.length)return '<div class="sub">No pushes logged for this state.</div>';
+  return ps.map(p=>{const c=calc(p);return `<div class="pi"><div style="min-width:0"><div>${statusTag(p)} <b>${esc(fmtDay(p.started_on))} to ${p.ended_on?esc(fmtDay(p.ended_on)):'now'}</b>${p.angle?` · ${esc(p.angle)}`:''}</div>
+    <div class="ps">${esc([p.cities, p.heat_start!=null?'heat '+heatTxt(p):'', p.spend!=null?usd(p.spend)+' spend':'', p.conversions!=null?p.conversions+' conv':'', c.cpa!=null?usd(c.cpa,2)+' CPA':''].filter(Boolean).join(' · '))}</div>${p.notes?`<div class="ps">${esc(p.notes)}</div>`:''}</div>
+    <div style="white-space:nowrap">${p.ended_on?'':`<button class="btn" data-end="${p.id}">End</button> `}<button class="x" data-edit="${p.id}">Edit</button></div></div>`}).join('');
+}
+
+function pushClick(e){
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.end)openPush('end',S.pushes.find(p=>p.id==b.dataset.end));
+  else if(b.dataset.edit)openPush('edit',S.pushes.find(p=>p.id==b.dataset.edit));
+  else if(b.dataset.k&&GRID[b.dataset.k]){openMarket(b.dataset.k)}
+}
+
+// Prefill a new push from what the tracker and AI read say about this state right now.
+function prefill(k){
+  const m=S.markets.find(x=>x.key===k)||{};const pick=S.brief?.picks?.find(p=>p.market===k);
+  const why=m.call&&m.call!=='Hold'?`${m.call}, heat ${m.score}${m.topTypes?.length?' · '+m.topTypes.map(tlabel).join(', '):''}`:'';
+  return {market:k,cities:(pick?.cities?.length?pick.cities:m.cities||[]).join(', '),angle:pick?.angle||'',reason:why};
+}
+
+let pEdit=null;
+function initPushes(){
+  const f=$('pform');
+  f.market.innerHTML='<option value="">Pick a state</option>'+Object.entries(S.meta.states).filter(([k])=>GRID[k]).sort((a,b)=>a[1].localeCompare(b[1])).map(([k,v])=>`<option value="${k}">${esc(v)}</option>`).join('');
+  f.outcome.innerHTML='<option value="">Not set</option>'+(S.meta.outcomes||[]).map(o=>`<option>${esc(o)}</option>`).join('');
+  $('pushNew').onclick=()=>openPush('new',{});
+  $('pushes').onclick=pushClick;
+  $('pCancel').onclick=()=>$('pdlg').close();
+  f.oninput=showCalc;
+  f.onsubmit=savePush;
+  $('pDel').onclick=async()=>{if(!pEdit)return;$('pDel').textContent='Click again to delete';if(!$('pDel').dataset.arm){$('pDel').dataset.arm=1;return}
+    await fetch('/api/pushes/'+pEdit.id,{method:'DELETE'});$('pdlg').close();loadPushes()};
+}
+
+function openPush(mode,p){
+  if(!p)return;
+  const f=$('pform');f.reset();pEdit=mode==='new'?null:p;
+  for(const el of f.elements)if(el.name&&p[el.name]!=null)el.value=p[el.name];
+  if(mode==='new'&&!p.started_on)f.started_on.value=localDay();
+  if(mode==='end'&&!p.ended_on)f.ended_on.value=localDay();
+  $('pTitle').textContent=mode==='new'?'Start push':mode==='end'?'End push and log results':'Edit push';
+  $('pSub').textContent=mode==='new'?'Heat and the tracker call get saved automatically. Results can wait until you end it.':p.heat_start!=null?`Heat at start ${p.heat_start}${p.call_start?' · call '+p.call_start:''}`:'';
+  $('pRes').hidden=mode==='new';
+  $('pDel').hidden=mode!=='edit';delete $('pDel').dataset.arm;$('pDel').textContent='Delete';
+  $('pErr').hidden=true;$('pSave').disabled=false;$('pSave').textContent=mode==='end'?'End push':'Save';
+  showCalc();$('pdlg').showModal();
+  (mode==='end'?f.spend:mode==='new'&&!p.market?f.market:f.campaign).focus();
+}
+
+function showCalc(){
+  const f=$('pform'),c=calc({spend:f.spend.value.replace(/[$,]/g,''),impressions:f.impressions.value.replace(/,/g,''),clicks:f.clicks.value.replace(/,/g,''),conversions:f.conversions.value,conv_value:f.conv_value.value.replace(/[$,]/g,'')});
+  const parts=[['CTR',pct(c.ctr)],['CVR',pct(c.cvr)],['CPA',usd(c.cpa,2)],['ROAS',c.roas!=null&&isFinite(c.roas)?c.roas.toFixed(2)+'x':'']].filter(x=>x[1]);
+  $('pCalc').innerHTML=parts.map(([k,v])=>`<span><b>${k}</b> ${v}</span>`).join('');
+}
+
+async function savePush(e){
+  e.preventDefault();
+  const f=$('pform'),body={};
+  for(const el of f.elements)if(el.name&&!el.closest('[hidden]'))body[el.name]=el.value;
+  if(!body.market){showErr('Pick a state');return}
+  if(pEdit&&!pEdit.ended_on&&!body.ended_on&&$('pTitle').textContent.startsWith('End')){showErr('Set an end date');return}
+  $('pSave').disabled=true;$('pSave').textContent='Saving';
+  const r=await fetch(pEdit?'/api/pushes/'+pEdit.id:'/api/pushes',{method:pEdit?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const out=await r.json().catch(()=>({error:'Save failed'}));
+  if(!r.ok){showErr(out.error||'Save failed');$('pSave').disabled=false;$('pSave').textContent='Save';return}
+  $('pdlg').close();loadPushes();
+}
+function showErr(m){$('pErr').textContent=m;$('pErr').hidden=false}
+
 init();
 </script>
 </body>

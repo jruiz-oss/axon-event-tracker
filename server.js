@@ -8,6 +8,7 @@ import { STATES } from './lib/geo.js';
 import { scoreMarket, dayKey } from './lib/score.js';
 import { loadGroups, parseTypes, rankedMarkets, majorEvents } from './lib/markets.js';
 import { getBrief } from './lib/brief.js';
+import { listPushes, createPush, updatePush, deletePush, pushesCsv, OUTCOMES } from './lib/pushes.js';
 import { liveIngest, backfill, backfillStatus, probe, reprocessIfChanged, syncTrust } from './lib/ingest.js';
 
 const app = express();
@@ -28,7 +29,7 @@ app.use(express.static(path.join(__dir, 'public')));
 app.get('/healthz', (_q, r) => r.send('ok'));
 
 app.get('/api/meta', async (_q, res) => {
-  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS), income: incomeStatus(), ai: !!process.env.ANTHROPIC_API_KEY });
+  res.json({ types: Object.fromEntries(Object.entries(TYPES).map(([k, v]) => [k, { label: v.label, tier: v.tier, weight: v.weight }])), states: STATES, status: await backfillStatus(BACKFILL_DAYS), income: incomeStatus(), outcomes: OUTCOMES, ai: !!process.env.ANTHROPIC_API_KEY });
 });
 
 app.get('/api/markets', async (req, res) => {
@@ -78,6 +79,20 @@ app.get('/api/export.csv', async (_q, res) => {
   const { rows } = await pool.query(`SELECT to_char(seen_at,'YYYY-MM-DD HH24:MI') seen, type, state, city, domain, trusted, national, title, url FROM articles WHERE NOT dismissed ORDER BY seen_at DESC`);
   const esc = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
   res.type('text/csv').send(['seen,type,state,city,domain,counts,national,title,url', ...rows.map(r => [r.seen, r.type, r.state, r.city, r.domain, r.trusted ? 'yes' : 'no', r.national ? 'yes' : 'no', r.title, r.url].map(esc).join(','))].join('\n'));
+});
+
+// Push log: manual record of when we actually pushed a market, and how it went. Not tied to Google Ads.
+const send = fn => async (req, res) => {
+  try { res.json(await fn(req)); }
+  catch (e) { const code = e.status || 500; if (code === 500) console.error(e); res.status(code).json({ error: e.message }); }
+};
+app.get('/api/pushes', send(req => listPushes(req.query.market ? String(req.query.market).toUpperCase() : null)));
+app.post('/api/pushes', send(req => createPush(req.body)));
+app.patch('/api/pushes/:id', send(req => updatePush(req.params.id, req.body)));
+app.delete('/api/pushes/:id', send(async req => { await deletePush(req.params.id); return { ok: true }; }));
+app.get('/api/pushes.csv', async (_q, res) => {
+  try { res.type('text/csv').set('Content-Disposition', 'attachment; filename="axon-pushes.csv"').send(await pushesCsv()); }
+  catch (e) { console.error(e); res.status(500).send(e.message); }
 });
 
 app.post('/api/ingest/run', async (_q, res) => { liveIngest(); res.json({ started: true }); });
