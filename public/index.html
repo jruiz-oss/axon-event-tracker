@@ -317,23 +317,32 @@ dialog#pdlg{max-height:calc(100vh - 32px);overflow:auto}
     <label>State<select name="market" required></select></label>
     <label>Start date<input type="date" name="started_on" required></label>
     <label class="full">Cities<input name="cities" placeholder="Houston, Dallas"></label>
-    <label>Campaign<input name="campaign" placeholder="Name in Google Ads"></label>
-    <label>Daily budget<input name="daily_budget" inputmode="decimal" placeholder="15"></label>
+    <label>Google campaign<input name="campaign" placeholder="Name in Google Ads"></label>
+    <label>Google daily budget<input name="daily_budget" inputmode="decimal" placeholder="15"></label>
+    <label>Meta campaign<input name="meta_campaign" placeholder="Name in Meta, blank if none"></label>
+    <label>Meta daily budget<input name="meta_budget" inputmode="decimal" placeholder="blank if none"></label>
     <label class="full">Messaging angle<input name="angle" placeholder="home protection"></label>
     <label class="full">Why we pushed<textarea name="reason" placeholder="What triggered it"></textarea></label>
-    <label class="full">Negative keywords<textarea name="negatives" placeholder="Event terms to block, comma separated" style="min-height:40px"></textarea></label>
   </div>
   <div id="pRes">
-    <div class="sect">Results<span>From Google Ads, for the push dates</span></div>
+    <div class="sect">Results<span>For the push dates</span></div>
     <div class="fs">
       <label>End date<input type="date" name="ended_on"></label>
       <label>Outcome<select name="outcome"></select></label>
+      <div class="sect full" style="margin:6px 0 0">Google Ads</div>
       <label>Spend<input name="spend" inputmode="decimal"></label>
       <label>Impressions<input name="impressions" inputmode="numeric"></label>
       <label>Clicks<input name="clicks" inputmode="numeric"></label>
       <label>Conversions<input name="conversions" inputmode="decimal"></label>
       <label>Conv. value<input name="conv_value" inputmode="decimal"></label>
       <div class="live-calc num" id="pCalc"></div>
+      <div class="sect full" style="margin:6px 0 0">Meta</div>
+      <label>Spend<input name="meta_spend" inputmode="decimal"></label>
+      <label>Impressions<input name="meta_impressions" inputmode="numeric"></label>
+      <label>Clicks<input name="meta_clicks" inputmode="numeric"></label>
+      <label>Conversions<input name="meta_conversions" inputmode="decimal"></label>
+      <label>Conv. value<input name="meta_conv_value" inputmode="decimal"></label>
+      <div class="live-calc num" id="pCalcM"></div>
       <label class="full">Notes<textarea name="notes" placeholder="What worked, what didn't, what to do next time"></textarea></label>
     </div>
   </div>
@@ -626,6 +635,10 @@ const usd=(v,dp=0)=>v==null||!isFinite(v)?'':'$'+v.toLocaleString([], {minimumFr
 const pct=v=>v==null||!isFinite(v)?'':(v*100).toFixed(v<.1?2:1)+'%';
 function calc(p){const n=v=>v==null||v===''?null:+v;const sp=n(p.spend),im=n(p.impressions),cl=n(p.clicks),cv=n(p.conversions),va=n(p.conv_value);
   return {ctr:im&&cl!=null?cl/im:null,cvr:cl&&cv!=null?cv/cl:null,cpa:cv&&sp!=null?sp/cv:null,roas:sp&&va!=null?va/sp:null}}
+// table/panel show Google + Meta combined
+const tot=p=>{const t=k=>p[k]==null&&p['meta_'+k]==null?null:(+p[k]||0)+(+p['meta_'+k]||0);
+  return {spend:t('spend'),impressions:t('impressions'),clicks:t('clicks'),conversions:t('conversions'),conv_value:t('conv_value')}};
+const budgetTxt=p=>p.meta_budget?`${p.daily_budget?'G '+usd(p.daily_budget):''}${p.daily_budget?' + ':''}M ${usd(p.meta_budget)}/day`:p.daily_budget?usd(p.daily_budget)+'/day':'';
 const marketPushes=()=>S.pushes.filter(p=>p.market===S.sel);
 const outcomeTag=o=>o?`<span class="call o-${esc(o.split(' ')[0])}">${esc(o)}</span>`:'';
 const statusTag=p=>p.ended_on?outcomeTag(p.outcome)||'<span class="call c-Hold">Ended</span>':`<span class="call livep">Live · day ${daysRun(p)}</span>`;
@@ -640,20 +653,20 @@ async function loadPushes(){
 function renderPushes(){
   const el=$('pushes');
   if(!S.pushes.length){el.innerHTML='<div class="empty">No pushes logged yet. Hit Start push when you turn a market on.</div>';return}
-  el.innerHTML=`<div class="pwrap"><table class="ptable"><thead><tr><th>Status</th><th>Market</th><th>Dates</th><th class="r">Heat</th><th class="r">Spend</th><th class="r">Conv</th><th class="r">CPA</th><th class="r">CVR</th><th class="r">CTR</th><th></th></tr></thead><tbody>${S.pushes.map(p=>{const c=calc(p);
+  el.innerHTML=`<div class="pwrap"><table class="ptable"><thead><tr><th>Status</th><th>Market</th><th>Dates</th><th class="r">Heat</th><th class="r">Spend</th><th class="r">Conv</th><th class="r">CPA</th><th class="r">CVR</th><th class="r">CTR</th><th></th></tr></thead><tbody>${S.pushes.map(p=>{const T=tot(p),c=calc(T);
     return `<tr><td>${statusTag(p)}</td>
-      <td><button class="pn" data-k="${esc(p.market)}">${esc(marketName(p.market))}</button>${p.cities?` <span class="sub">${esc(p.cities)}</span>`:''}<div class="ps">${esc([p.campaign,p.angle].filter(Boolean).join(' · '))}</div></td>
-      <td style="white-space:nowrap">${esc(fmtDay(p.started_on))} to ${p.ended_on?esc(fmtDay(p.ended_on)):'now'}<div class="ps">${daysRun(p)}d${p.daily_budget?' · '+usd(p.daily_budget)+'/day':''}</div></td>
+      <td><button class="pn" data-k="${esc(p.market)}">${esc(marketName(p.market))}</button>${p.cities?` <span class="sub">${esc(p.cities)}</span>`:''}<div class="ps">${esc([p.campaign,p.meta_campaign&&'Meta: '+p.meta_campaign,p.angle].filter(Boolean).join(' · '))}</div></td>
+      <td style="white-space:nowrap">${esc(fmtDay(p.started_on))} to ${p.ended_on?esc(fmtDay(p.ended_on)):'now'}<div class="ps">${daysRun(p)}d${budgetTxt(p)?' · '+budgetTxt(p):''}</div></td>
       <td class="r num" title="Tracker heat at start${p.ended_on?' and end':''}${p.call_start?'. Call at start: '+esc(p.call_start):''}">${heatTxt(p)}</td>
-      <td class="r num">${usd(p.spend)}</td><td class="r num">${p.conversions??''}</td><td class="r num">${usd(c.cpa,2)}</td><td class="r num">${pct(c.cvr)}</td><td class="r num">${pct(c.ctr)}</td>
+      <td class="r num">${usd(T.spend)}</td><td class="r num">${T.conversions??''}</td><td class="r num">${usd(c.cpa,2)}</td><td class="r num">${pct(c.cvr)}</td><td class="r num">${pct(c.ctr)}</td>
       <td class="acts">${p.ended_on?'':`<button class="btn" data-end="${p.id}">End + results</button> `}<button class="x" data-edit="${p.id}">Edit</button></td></tr>`}).join('')}</tbody></table></div>`;
 }
 
 function panelPushes(){
   const ps=marketPushes();
   if(!ps.length)return '<div class="sub">No pushes logged for this state.</div>';
-  return ps.map(p=>{const c=calc(p);return `<div class="pi"><div style="min-width:0"><div>${statusTag(p)} <b>${esc(fmtDay(p.started_on))} to ${p.ended_on?esc(fmtDay(p.ended_on)):'now'}</b>${p.angle?` · ${esc(p.angle)}`:''}</div>
-    <div class="ps">${esc([p.cities, p.heat_start!=null?'heat '+heatTxt(p):'', p.spend!=null?usd(p.spend)+' spend':'', p.conversions!=null?p.conversions+' conv':'', c.cpa!=null?usd(c.cpa,2)+' CPA':''].filter(Boolean).join(' · '))}</div>${p.notes?`<div class="ps">${esc(p.notes)}</div>`:''}</div>
+  return ps.map(p=>{const T=tot(p),c=calc(T);return `<div class="pi"><div style="min-width:0"><div>${statusTag(p)} <b>${esc(fmtDay(p.started_on))} to ${p.ended_on?esc(fmtDay(p.ended_on)):'now'}</b>${p.angle?` · ${esc(p.angle)}`:''}</div>
+    <div class="ps">${esc([p.cities, p.heat_start!=null?'heat '+heatTxt(p):'', T.spend!=null?usd(T.spend)+' spend':'', T.conversions!=null?T.conversions+' conv':'', c.cpa!=null?usd(c.cpa,2)+' CPA':''].filter(Boolean).join(' · '))}</div>${p.notes?`<div class="ps">${esc(p.notes)}</div>`:''}</div>
     <div style="white-space:nowrap">${p.ended_on?'':`<button class="btn" data-end="${p.id}">End</button> `}<button class="x" data-edit="${p.id}">Edit</button></div></div>`}).join('');
 }
 
@@ -697,7 +710,7 @@ async function runDraft(k,story){
   const d=r.draft,f=$('pform');
   // fields you already touched are left alone
   const set=(n,v)=>{if(v==null||v===''||dirty.has(n))return;f[n].value=v};
-  set('cities',(d.cities||[]).join(', '));set('angle',d.angle);set('reason',d.reason);set('campaign',d.campaign);set('daily_budget',d.daily_budget);set('negatives',(d.negatives||[]).join(', '));
+  set('cities',(d.cities||[]).join(', '));set('angle',d.angle);set('reason',d.reason);set('campaign',d.campaign);set('daily_budget',d.daily_budget);
   pReplace=d.replaces_push_id?S.pushes.find(p=>p.id===d.replaces_push_id&&!p.ended_on)||null:null;
   el.className='pai';
   el.innerHTML=`<div class="ah"><b>${esc(d.story_label||r.story.label)}</b><span class="call v-${esc(String(d.verdict).split(' ')[0])}">${esc(d.verdict)}</span><span class="call f-${esc(d.fit)}">${esc(d.fit)} fit</span>${d.audience?`<span class="sub">Who: ${esc(d.audience)}</span>`:''}</div>
@@ -738,9 +751,12 @@ function openPush(mode,p){
 }
 
 function showCalc(){
-  const f=$('pform'),c=calc({spend:f.spend.value.replace(/[$,]/g,''),impressions:f.impressions.value.replace(/,/g,''),clicks:f.clicks.value.replace(/,/g,''),conversions:f.conversions.value,conv_value:f.conv_value.value.replace(/[$,]/g,'')});
-  const parts=[['CTR',pct(c.ctr)],['CVR',pct(c.cvr)],['CPA',usd(c.cpa,2)],['ROAS',c.roas!=null&&isFinite(c.roas)?c.roas.toFixed(2)+'x':'']].filter(x=>x[1]);
-  $('pCalc').innerHTML=parts.map(([k,v])=>`<span><b>${k}</b> ${v}</span>`).join('');
+  const f=$('pform');
+  for(const [pre,id] of [['','pCalc'],['meta_','pCalcM']]){
+    const g=k=>f[pre+k].value,c=calc({spend:g('spend').replace(/[$,]/g,''),impressions:g('impressions').replace(/,/g,''),clicks:g('clicks').replace(/,/g,''),conversions:g('conversions'),conv_value:g('conv_value').replace(/[$,]/g,'')});
+    const parts=[['CTR',pct(c.ctr)],['CVR',pct(c.cvr)],['CPA',usd(c.cpa,2)],['ROAS',c.roas!=null&&isFinite(c.roas)?c.roas.toFixed(2)+'x':'']].filter(x=>x[1]);
+    $(id).innerHTML=parts.map(([k,v])=>`<span><b>${k}</b> ${v}</span>`).join('');
+  }
 }
 
 async function savePush(e){
