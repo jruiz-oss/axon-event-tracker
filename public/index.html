@@ -11,7 +11,7 @@
 <style>
 :root{
   color-scheme:light;
-  --bg:#f5f5f2;--card:#ffffff;--ink:#121212;--ink2:#4f4e4a;--mute:#8a8882;--line:#e6e5df;--line2:#efeee9;--hover:#f7f6f2;
+  --bg:#f5f5f2;--card:#ffffff;--ink:#121212;--ink2:#4f4e4a;--mute:#6f6d67;--line:#e6e5df;--line2:#efeee9;--hover:#f7f6f2;
   --accent:#b23c0b;--accent-soft:#fdf1e9;
   --q:#efeee9;--w:#eda36b;--h:#dd6a2a;--hot:#b23c0b;
   --up:#b23c0b;--down:#2f7d4a;--good:#2f7d4a;--good-soft:#e8f3ec;
@@ -21,8 +21,9 @@
 html,body{background:var(--bg)}
 body{margin:0;color:var(--ink);font:13px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01"}
 .num{font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 a{color:inherit}
-button{font:inherit;color:inherit}
+button{font:inherit;color:inherit;touch-action:manipulation}
 
 /* Header */
 header{background:var(--card);border-bottom:1px solid var(--line)}
@@ -79,6 +80,7 @@ h1{font-size:15px;font-weight:650;margin:0;letter-spacing:-.01em}
 .tile small{font-weight:500;font-size:10.5px;opacity:.85}
 .tile:hover,.tile:focus-visible{transform:translateY(-1px);box-shadow:0 0 0 2px var(--card),0 0 0 3.5px #bdbcb5}
 .tile.sel{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
+.tile:focus-visible{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
 .tile.weak{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 2px,transparent 2px 6px)}
 .tile.weak.t-Hot{text-shadow:0 1px 2px rgba(0,0,0,.45)}
 .tile .go{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:#2f9e57;box-shadow:0 0 0 2px #fff}
@@ -223,7 +225,7 @@ dialog#pdlg::backdrop{background:rgba(18,18,18,.35)}
 .pf .err{color:var(--accent);font-size:12.5px;margin-top:10px}
 .pf .foot{display:flex;justify-content:space-between;gap:8px;margin-top:16px;align-items:center}
 .pf .foot>div{display:flex;gap:8px}
-dialog#pdlg{max-height:calc(100vh - 32px);overflow:auto}
+dialog#pdlg{max-height:calc(100vh - 32px);overflow:auto;overscroll-behavior:contain}
 
 /* Stories (detail feed) */
 .story{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:9px 11px;margin-bottom:7px}
@@ -277,14 +279,14 @@ dialog#pdlg{max-height:calc(100vh - 32px);overflow:auto}
   </div>
 </header>
 
-<div class="wrap">
+<main class="wrap">
   <div class="filters" id="chips"></div>
   <div class="kpis" id="kpis"></div>
 
   <div class="stack" id="main">
     <section class="card" id="briefCard" hidden>
       <div class="ch"><h2>Best fit for a TASER ad</h2><div style="display:flex;align-items:center;gap:12px"><span class="sub" id="briefMeta"></span><button class="btn" id="briefRe">Refresh</button></div></div>
-      <div class="cb" id="brief"><div class="empty">Reading active markets</div></div>
+      <div class="cb" id="brief"><div class="empty">Reading active markets…</div></div>
     </section>
     <section class="card" id="mapCard">
       <div class="ch"><h2>Market heat</h2><div style="display:flex;align-items:center;gap:14px"><span class="sub">Click a state to open it</span><a class="btn" href="/api/export.csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>Export CSV</a></div></div>
@@ -305,12 +307,12 @@ dialog#pdlg{max-height:calc(100vh - 32px);overflow:auto}
 
     <section class="card" id="pushCard">
       <div class="ch"><h2>Push log</h2><div style="display:flex;align-items:center;gap:10px"><span class="sub">What we actually ran and how it went</span><a class="btn" href="/api/pushes.csv">Export</a><button class="btn pri" id="pushNew">Start push</button></div></div>
-      <div class="cb" id="pushes"><div class="empty">Loading pushes</div></div>
+      <div class="cb" id="pushes"><div class="empty">Loading pushes…</div></div>
     </section>
   </div>
-</div>
+</main>
 
-<dialog id="pdlg"><form class="pf" id="pform" method="dialog" novalidate>
+<dialog id="pdlg"><form class="pf" id="pform" method="dialog" autocomplete="off" novalidate>
   <h3 id="pTitle">Start push</h3><div class="sub" id="pSub"></div>
   <div class="pai" id="pAi" hidden></div>
   <div class="fs">
@@ -346,7 +348,7 @@ dialog#pdlg{max-height:calc(100vh - 32px);overflow:auto}
       <label class="full">Notes<textarea name="notes" placeholder="What worked, what didn't, what to do next time"></textarea></label>
     </div>
   </div>
-  <div class="err" id="pErr" hidden></div>
+  <div class="err" id="pErr" role="alert" hidden></div>
   <div class="foot"><button type="button" class="linkbtn" id="pDel" hidden>Delete</button><span></span><div><button type="button" class="btn" id="pCancel">Cancel</button><button type="submit" class="btn pri" id="pSave">Save</button></div></div>
 </form></dialog>
 
@@ -379,11 +381,11 @@ async function init(){
   S.meta=await j('/api/meta');
   const tiers={};
   for(const [k,t] of Object.entries(S.meta.types))(tiers[t.tier]||(tiers[t.tier]=[])).push([k,t]);
-  const rows=Object.keys(tiers).sort().map(n=>`<div class="frow"><span class="flabel">${TIER_NAME[n]||'Tier '+n}</span>`+tiers[n].map(([k,t])=>`<button class="chip" data-t="${k}" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
+  const rows=Object.keys(tiers).sort().map(n=>`<div class="frow"><span class="flabel">${TIER_NAME[n]||'Tier '+n}</span>`+tiers[n].map(([k,t])=>`<button class="chip" data-t="${k}" aria-pressed="false" title="Weight ${t.weight}">${esc(t.label)}</button>`).join('')+`</div>`).join('');
   $('chips').innerHTML=`<div class="fhead"><span>Event types <span id="fcount">· all</span></span></div>`+rows+`<button class="linkbtn" id="clearT" hidden>Clear filters</button>`;
   $('chips').onclick=e=>{
-    if(e.target.id==='clearT'){S.types.clear();$('chips').querySelectorAll('.chip.on').forEach(c=>c.classList.remove('on'))}
-    else{const b=e.target.closest('button.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.classList.toggle('on')}
+    if(e.target.id==='clearT'){S.types.clear();$('chips').querySelectorAll('.chip.on').forEach(c=>{c.classList.remove('on');c.setAttribute('aria-pressed','false')})}
+    else{const b=e.target.closest('button.chip');if(!b)return;const t=b.dataset.t;S.types.has(t)?S.types.delete(t):S.types.add(t);b.setAttribute('aria-pressed',b.classList.toggle('on'))}
     $('clearT').hidden=!S.types.size;$('fcount').textContent=S.types.size?`· ${S.types.size} selected`:'· all';refresh();
   };
   addEventListener('keydown',e=>{if(e.key==='Escape'&&S.sel&&!$('pdlg').open)closeState()});
@@ -393,7 +395,7 @@ async function init(){
   await refresh();
   loadPushes();
   if(S.meta.ai)loadBrief();
-  setInterval(async()=>{try{const m=await j('/api/meta');S.meta.status=m.status;S.meta.income=m.income;renderStatus(S.meta)}catch{}refresh();if(S.meta.ai)loadBrief()},5*60e3);
+  setInterval(async()=>{try{const m=await j('/api/meta');S.meta.status=m.status;S.meta.income=m.income;renderStatus(S.meta)}catch{}refresh(true);if(S.meta.ai)loadBrief()},5*60e3);
 }
 
 function renderStatus(meta){
@@ -401,13 +403,15 @@ function renderStatus(meta){
   const live=st.lastLive?`<span class="live"><i class="dot"></i>Last pull ${esc(new Date(st.lastLive).toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))}</span>`:`<span class="live"><i class="dot idle"></i>Waiting for first pull</span>`;
   const bf=st.pct<100?`<span class="bf">History ${st.pct}%${st.running?' (running)':''}<span class="bar"><i style="width:${st.pct}%"></i></span></span>`:`<span class="bf">History complete (90 days)</span>`;
   const inc=meta.income&&!meta.income.loaded?`<span class="bf" style="color:var(--accent)">Income data not loaded</span>`:'';
-  $('status').innerHTML=live+bf+inc;
+  const stale=S.stale?'<span class="bf" role="status" style="color:var(--accent)">Could not refresh. Showing last data.</span>':'';
+  $('status').innerHTML=live+bf+inc+stale;
 }
 
-async function refresh(){
-  $('main').classList.add('loading');
-  try{S.markets=await j(`/api/markets?level=state${tq()}`)}catch(e){S.markets=[]}
+async function refresh(quiet){
+  if(!quiet)$('main').classList.add('loading');
+  try{S.markets=await j(`/api/markets?level=state${tq()}`);S.stale=false}catch(e){S.stale=true} // on failure keep the last data and say so
   $('main').classList.remove('loading');
+  renderStatus(S.meta);
   renderKpis();renderMap();
   if(S.sel)loadDetail();
 }
@@ -431,7 +435,7 @@ function renderKpis(){
 let briefSeq=0;
 async function loadBrief(force){
   const seq=++briefSeq,el=$('brief'),btn=$('briefRe');
-  btn.disabled=true;if(force){btn.textContent='Thinking';el.classList.add('loading')}
+  btn.disabled=true;if(force){btn.textContent='Thinking…';el.classList.add('loading')}
   let b;try{b=await j('/api/brief'+(force?'?force=1':''))}catch(e){b={error:'Could not reach the server'}}
   if(seq!==briefSeq)return;
   btn.disabled=false;btn.textContent='Refresh';el.classList.remove('loading');
@@ -494,7 +498,7 @@ function openState(k){
     area.classList.add('open');area.style.height=h+'px';
     p.style.clipPath='inset(0px 0px 0px 0px round 12px)';p.style.backgroundColor='';p.classList.add('in');
   });
-  setTimeout(()=>{animating=false;if(S.sel!==k||!$('detail'))return;area.classList.add('settled');area.style.height='';p.style.clipPath='none'},DUR+20);
+  setTimeout(()=>{animating=false;if(S.sel!==k||!$('detail'))return;area.classList.add('settled');area.style.height='';p.style.clipPath='none';if($('pClose')&&!$('pdlg').open)$('pClose').focus({preventScroll:true})},DUR+20);
   loadDetail();
 }
 
@@ -503,6 +507,7 @@ function closeState(){
   if(!p){S.sel=null;S.cache=null;renderMap();return}
   if(animating)return;
   const k=S.sel;animating=true;
+  const refocus=p.contains(document.activeElement)&&document.activeElement.matches(':focus-visible');
   const h=p.offsetHeight;
   area.style.height=h+'px';area.classList.remove('settled');p.style.clipPath='inset(0px 0px 0px 0px round 12px)';
   const mapH=$('map').offsetHeight;
@@ -511,7 +516,7 @@ function closeState(){
     p.classList.remove('in');p.style.clipPath=tileClip(k,h);p.style.backgroundColor=tileColor(k);
     area.style.height=mapH+'px';area.classList.remove('open');
   });
-  setTimeout(()=>{animating=false;resetState();S.sel=null;S.cache=null;renderMap()},DUR+20);
+  setTimeout(()=>{animating=false;resetState();S.sel=null;S.cache=null;renderMap();if(refocus)document.querySelector(`#map .tile[data-k="${k}"]`)?.focus({preventScroll:true})},DUR+20);
 }
 // remove the panel without animating
 function resetState(){const area=$('mapArea'),p=$('detail');if(area&&p&&area.contains(p))p.remove();if(area){area.classList.remove('open','settled');area.style.height=''}}
@@ -522,30 +527,35 @@ function selMarket(){const key=S.sel;return S.markets.find(x=>x.key===key)||{key
 function paintDetail(){
   const el=$('detail');if(!el||!S.sel)return;
   const m=selMarket();const c=S.cache&&S.cache.key===S.sel?S.cache:{h:null,st:null};
+  const keep=el.dataset.k===S.sel&&$('feed')?$('feed').scrollTop:0,refocus=document.activeElement&&document.activeElement.id==='pClose';el.dataset.k=S.sel;
   el.innerHTML=`<div class="xin"><div class="ptop"><div><div class="sub">State${m.ledBy?` · driven by ${esc(m.ledBy)}`:''}</div><h3 class="dname">${esc(marketName(m.key))}</h3>
       <div class="pbadges">${callTag(m)}<span class="badge b-${m.level}">${esc(m.level)}</span>${fmtDelta(m.delta)}<span class="sub">vs 7 days ago</span></div></div>
     <button class="close" id="pClose" aria-label="Close"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-    ${bodyHtml(m,c.h,c.st)}</div>`;
+    ${bodyHtml(m,c.h,c.st,c.err)}</div>`;
   el.onclick=e=>e.stopPropagation();
   $('pClose').onclick=closeState;
   $('pHere').onclick=()=>startPush(S.sel,null);
   $('pPanel').onclick=pushClick;
   if(c.h)renderHist(c.h);
   $('feed').onclick=storyClick;
+  $('feed').scrollTop=keep;
+  if($('dRetry'))$('dRetry').onclick=()=>loadDetail();
+  if(refocus)$('pClose').focus({preventScroll:true});
 }
 
 async function loadDetail(retry){
   const seq=++selSeq;const key=S.sel;if(!key)return;
-  let st=[],h=[],pending=false;
+  let st=[],h=[],pending=false,failed=false;
   const stories=async()=>{const r=await fetch(`/api/stories?market=${encodeURIComponent(key)}&days=14${tq()}`);if(!r.ok)throw new Error(r.status);pending=r.headers.get('X-Names-Pending')==='1';return r.json()};
-  try{[st,h]=await Promise.all([stories(),j(`/api/history?market=${encodeURIComponent(key)}&level=state&days=90${tq()}`)])}catch(e){}
+  try{[st,h]=await Promise.all([stories(),j(`/api/history?market=${encodeURIComponent(key)}&level=state&days=90${tq()}`)])}catch(e){failed=true}
   if(seq!==selSeq||S.sel!==key)return; // a newer selection won
+  if(failed){if(S.cache&&S.cache.key===key&&!S.cache.err)return;S.cache={key,h:null,st:null,err:true};paintDetail();return} // keep what we have, or show an error with retry
   S.cache={key,h,st};paintDetail();
   // story names still being written: pick them up once they're ready
   if(pending&&!retry)setTimeout(()=>{if(seq===selSeq&&S.sel===key)loadDetail(true)},6000);
 }
 
-function bodyHtml(m,h,st){
+function bodyHtml(m,h,st,err){
   const by=Object.entries(m.byType||{}).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
   const mx=Math.max(...by.map(([,v])=>v),0.01);
   const w=m.win,a=m.afford;
@@ -562,12 +572,12 @@ function bodyHtml(m,h,st){
     <div class="guard"><span>Confirm with Google Trends or search terms before shifting budget</span><span>Never reference the event in creative</span><span>Add event terms as negatives</span></div>
     ${by.length?`<div class="sect">Heat drivers<span>Buyer-fit weighted</span></div><div class="drv">${by.map(([t,v])=>`<div class="dl" title="${esc(tlabel(t))}">${esc(tlabel(t))}<em>${esc(TIER_NAME[S.meta.types[t]?.tier]||'')}</em></div><div class="db"><i style="width:${(v/mx*100).toFixed(1)}%"></i></div><div class="dv num">${v.toFixed(1)}</div>`).join('')}</div>`:''}
     <div class="sect">Heat history<span>90 days${marketPushes().length?' · shaded = our pushes':''}</span></div>
-    <div class="chart" id="hist">${h?'':'<div class="empty">Loading history</div>'}</div>
+    <div class="chart" id="hist">${h?'':err?'<div class="empty">Could not load history.</div>':'<div class="empty">Loading history…</div>'}</div>
     <div class="sect">Our pushes here<button class="btn" id="pHere" style="text-transform:none;letter-spacing:0;font-weight:500">Start push here</button></div>
     <div class="plist" id="pPanel">${panelPushes()}</div>
     </div><div>
     <div class="sect">Stories<span>Last 14 days · pick one to push on</span></div>
-    <div id="feed" class="pfeed">${st==null?'<div class="empty">Loading stories</div>':st.length?st.map(storyHtml).join(''):'<div class="empty">No stories in the last 14 days.</div>'}</div></div></div>`;
+    <div id="feed" class="pfeed">${st==null?(err?'<div class="empty">Could not load stories. <button type="button" class="linkbtn" id="dRetry">Try again</button></div>':'<div class="empty">Loading stories…</div>'):st.length?st.map(storyHtml).join(''):'<div class="empty">No stories in the last 14 days.</div>'}</div></div></div>`;
 }
 
 // One story: a group of headlines about the same event. Click the title to see its headlines.
@@ -576,7 +586,7 @@ function storyHtml(x){
   const span=x.first_seen===x.last_seen?ago(x.last_seen):`${ago(x.first_seen)} to ${ago(x.last_seen)}`;
   const flags=[x.at_large?'<span class="flag at">Suspect at large</span>':'',x.arrest&&!x.at_large?'<span class="flag ar">Arrest reported</span>':''].join('');
   return `<div class="story ${open?'open':''}" data-sid="${x.id}"><div class="sh"><div style="min-width:0">
-      <button class="sl" data-toggle="${x.id}"><i>▶</i><span title="${esc(x.label)}">${esc(x.name||x.label)}</span></button>
+      <button class="sl" data-toggle="${x.id}" aria-expanded="${open}"><i aria-hidden="true">▶</i><span title="${esc(x.label)}">${esc(x.name||x.label)}</span></button>
       <div class="meta"><span class="pill">${esc(tlabel(x.type))}</span>${x.cities.length?`<span>${esc(x.cities.slice(0,3).join(', '))}</span>`:''}<span class="num">${x.outlets} outlet${x.outlets===1?'':'s'}</span><span>${esc(span)}</span>${flags}</div></div>
     <div class="sa"><button class="btn pri sm" data-start="${x.id}">Start push</button><button class="x" data-dstory="${x.id}" title="Not relevant. Removes every headline in this story from scoring">Dismiss</button></div></div>
     ${open?`<div class="heads">${x.headlines.map(e=>`<div class="ev"><div style="min-width:0"><a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>
@@ -586,20 +596,22 @@ function storyHtml(x){
 
 async function storyClick(e){
   const b=e.target.closest('button');if(!b)return;
-  if(b.dataset.toggle){const id=+b.dataset.toggle;S.openStories.has(id)?S.openStories.delete(id):S.openStories.add(id);const x=storyById(id);if(x)b.closest('.story').outerHTML=storyHtml(x);return}
+  if(b.dataset.toggle){const id=+b.dataset.toggle;S.openStories.has(id)?S.openStories.delete(id):S.openStories.add(id);const x=storyById(id);if(x){b.closest('.story').outerHTML=storyHtml(x);document.querySelector(`.story [data-toggle="${id}"]`)?.focus()}return}
   if(b.dataset.start){startPush(S.sel,storyById(b.dataset.start));return}
   const ids=b.dataset.dstory?storyById(b.dataset.dstory)?.headlines.flatMap(h=>h.ids):b.dataset.ids?b.dataset.ids.split(',').map(Number):null;
   if(!ids)return;
+  if(b.dataset.dstory&&!confirm(`Remove this story (${ids.length} headline${ids.length===1?'':'s'}) from scoring?`))return;
   b.disabled=true;
-  await fetch('/api/events/dismiss',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});
-  (b.dataset.dstory?b.closest('.story'):b.closest('.ev')).remove();
+  try{const r=await fetch('/api/events/dismiss',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids})});if(!r.ok)throw new Error(r.status)}
+  catch(err){b.disabled=false;b.textContent='Failed, retry';return}
+  (b.dataset.dstory?b.closest('.story'):b.closest('.ev'))?.remove();
   refresh();
 }
 
 function renderHist(h){
   const el=$('hist');
   if(!h||h.length<2){el.innerHTML='<div class="empty">Not enough history yet.</div>';return}
-  const W=600,H=150,p={l:26,r:6,t:10,b:22};const max=Math.max(100,...h.map(x=>x.score));
+  const W=Math.max(280,Math.round(el.clientWidth)||600),H=150,p={l:26,r:6,t:10,b:22};const max=Math.max(100,...h.map(x=>x.score));
   const x=i=>p.l+i*(W-p.l-p.r)/(h.length-1),y=v=>p.t+(H-p.t-p.b)*(1-v/max);
   const pts=h.map((d,i)=>`${x(i).toFixed(1)},${y(d.score).toFixed(1)}`).join(' ');
   const area=`${x(0).toFixed(1)},${y(0)} ${pts} ${x(h.length-1).toFixed(1)},${y(0)}`;
@@ -653,7 +665,7 @@ async function loadPushes(){
 function renderPushes(){
   const el=$('pushes');
   if(!S.pushes.length){el.innerHTML='<div class="empty">No pushes logged yet. Hit Start push when you turn a market on.</div>';return}
-  el.innerHTML=`<div class="pwrap"><table class="ptable"><thead><tr><th>Status</th><th>Market</th><th>Dates</th><th class="r">Heat</th><th class="r">Spend</th><th class="r">Conv</th><th class="r">CPA</th><th class="r">CVR</th><th class="r">CTR</th><th></th></tr></thead><tbody>${S.pushes.map(p=>{const T=tot(p),c=calc(T);
+  el.innerHTML=`<div class="pwrap"><table class="ptable"><thead><tr><th>Status</th><th>Market</th><th>Dates</th><th class="r">Heat</th><th class="r">Spend</th><th class="r">Conv</th><th class="r">CPA</th><th class="r">CVR</th><th class="r">CTR</th><th><span class="sr">Actions</span></th></tr></thead><tbody>${S.pushes.map(p=>{const T=tot(p),c=calc(T);
     return `<tr><td>${statusTag(p)}</td>
       <td><button class="pn" data-k="${esc(p.market)}">${esc(marketName(p.market))}</button>${p.cities?` <span class="sub">${esc(p.cities)}</span>`:''}<div class="ps">${esc([p.campaign,p.meta_campaign&&'Meta: '+p.meta_campaign,p.angle].filter(Boolean).join(' · '))}</div></td>
       <td style="white-space:nowrap">${esc(fmtDay(p.started_on))} to ${p.ended_on?esc(fmtDay(p.ended_on)):'now'}<div class="ps">${daysRun(p)}d${budgetTxt(p)?' · '+budgetTxt(p):''}</div></td>
@@ -696,7 +708,7 @@ let draftSeq=0,pReplace=null;const dirty=new Set();
 async function runDraft(k,story){
   const seq=++draftSeq,el=$('pAi');
   el.hidden=false;el.className='pai loading';
-  el.innerHTML=`<div class="take">Reading ${story?'this story':'the top story here'} against the rest of ${esc(marketName(k))}, other markets and the push log</div>`;
+  el.innerHTML=`<div class="take">Reading ${story?'this story':'the top story here'} against the rest of ${esc(marketName(k))}, other markets and the push log…</div>`;
   let r;
   try{
     const res=await fetch('/api/pushes/draft',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({market:k,story:story?story.id:null})});
@@ -727,11 +739,12 @@ function initPushes(){
   f.outcome.innerHTML='<option value="">Not set</option>'+(S.meta.outcomes||[]).map(o=>`<option>${esc(o)}</option>`).join('');
   $('pushNew').onclick=()=>openPush('new',{});
   $('pushes').onclick=pushClick;
-  $('pCancel').onclick=()=>$('pdlg').close();
+  $('pCancel').onclick=()=>{if(dirty.size&&!confirm('Discard what you entered?'))return;$('pdlg').close()};
   f.oninput=e=>{if(e.target.name)dirty.add(e.target.name);showCalc()};
   f.onsubmit=savePush;
   $('pDel').onclick=async()=>{if(!pEdit)return;$('pDel').textContent='Click again to delete';if(!$('pDel').dataset.arm){$('pDel').dataset.arm=1;return}
-    await fetch('/api/pushes/'+pEdit.id,{method:'DELETE'});$('pdlg').close();loadPushes()};
+    try{const r=await fetch('/api/pushes/'+pEdit.id,{method:'DELETE'});if(!r.ok)throw new Error(r.status)}catch(err){showErr('Could not delete. Try again.');return}
+    $('pdlg').close();loadPushes()};
 }
 
 function openPush(mode,p){
@@ -765,13 +778,21 @@ async function savePush(e){
   for(const el of f.elements)if(el.name&&!el.closest('[hidden]'))body[el.name]=el.value;
   if(!body.market){showErr('Pick a state');return}
   if(pEdit&&!pEdit.ended_on&&!body.ended_on&&$('pTitle').textContent.startsWith('End')){showErr('Set an end date');return}
-  $('pSave').disabled=true;$('pSave').textContent='Saving';
-  const r=await fetch(pEdit?'/api/pushes/'+pEdit.id:'/api/pushes',{method:pEdit?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  const out=await r.json().catch(()=>({error:'Save failed'}));
-  if(!r.ok){showErr(out.error||'Save failed');$('pSave').disabled=false;$('pSave').textContent='Save';return}
+  const lbl=$('pTitle').textContent.startsWith('End')?'End push':'Save';
+  $('pSave').disabled=true;$('pSave').textContent='Saving…';
+  let r,out;
+  try{
+    r=await fetch(pEdit?'/api/pushes/'+pEdit.id:'/api/pushes',{method:pEdit?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    out=await r.json().catch(()=>({error:'Save failed'}));
+  }catch(err){showErr('Could not reach the server. Try again.');$('pSave').disabled=false;$('pSave').textContent=lbl;return}
+  if(!r.ok){showErr(out.error||'Save failed');$('pSave').disabled=false;$('pSave').textContent=lbl;return}
   // one campaign: starting this push ends the one it replaces
-  if(!pEdit&&pReplace&&$('pRep')?.checked)await fetch('/api/pushes/'+pReplace.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({ended_on:body.started_on||localDay()})});
+  let endFailed=false;
+  if(!pEdit&&pReplace&&$('pRep')?.checked){
+    try{const rr=await fetch('/api/pushes/'+pReplace.id,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({ended_on:body.started_on||localDay()})});if(!rr.ok)throw new Error(rr.status)}catch(err){endFailed=true}
+  }
   $('pdlg').close();loadPushes();
+  if(endFailed)setTimeout(()=>alert('Push saved, but the old push could not be ended. End it by hand.'),0);
 }
 function showErr(m){$('pErr').textContent=m;$('pErr').hidden=false}
 
